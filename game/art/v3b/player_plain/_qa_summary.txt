@@ -1,0 +1,130 @@
+AFK Slayer plain starter player - QA
+
+current mage frame0: alpha bbox=[11, 0, 133, 155] baseline_row=151 hood_top=9 hood->feet=142px feet_x=82.1 (boot centres [64.4, 99.8], staff columns x<48 excluded)
+player_gear_weapon_adamant_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=572 edge_px=0
+player_gear_weapon_adamant_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=577 edge_px=0
+player_gear_weapon_adamant_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=565 edge_px=0
+player_gear_weapon_bronze_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_bronze_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_bronze_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_dragon_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_dragon_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_dragon_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_glint_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_glint_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_glint_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_iron_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_iron_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_iron_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_mithril_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_mithril_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_mithril_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_rune_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=8 edge_px=0
+player_gear_weapon_rune_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=5 edge_px=0
+player_gear_weapon_rune_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=9 edge_px=0
+player_gear_weapon_steel_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_steel_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_gear_weapon_steel_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_plain_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_plain_body_attack.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_plain_body_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_plain_body_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_plain_idle.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+player_plain_walk.png: 852x156 frames=6 corner_alpha=[0, 0, 0, 0] max_frame_corner=0 lime_residue_px=0 greenish_edge_px(info)=0 edge_px=0
+
+layer check idle: mean |(body over bronze) - player_plain_idle| = 0.0000 (max frame 0.0000)
+layer check walk: mean |(body over bronze) - player_plain_walk| = 0.0000 (max frame 0.0000)
+layer check attack: mean |(body over bronze) - player_plain_attack| = 0.0000 (max frame 0.0000)
+
+body_idle frame0: alpha bbox=[14, 7, 78, 155] baseline_row=151 head_top=10 head->feet=141px measured feet_x=43.4 anchor_feet_x=44
+body_walk frame0: alpha bbox=[31, 10, 107, 155] baseline_row=151 head_top=13 head->feet=138px measured feet_x=67.2 anchor_feet_x=68
+body_attack frame0: alpha bbox=[14, 7, 78, 155] baseline_row=151 head_top=10 head->feet=141px measured feet_x=43.4 anchor_feet_x=44
+
+uniform scale s=0.29668 (sheet px -> frame px), blade-sheet->body-sheet k=0.42857 (bronze length 518px == wooden sword 222px)
+  bronze: grip->tip natural 51.2px, shipped 51.2px (blade section x1.000)
+  iron: grip->tip natural 83.5px, shipped 50.6px (blade section x0.467)
+  steel: grip->tip natural 87.2px, shipped 50.6px (blade section x0.437)
+  mithril: grip->tip natural 87.7px, shipped 50.6px (blade section x0.442)
+  adamant: grip->tip natural 87.9px, shipped 50.6px (blade section x0.440)
+  rune: grip->tip natural 87.9px, shipped 50.6px (blade section x0.445)
+  dragon: grip->tip natural 97.1px, shipped 51.9px (blade section x0.427)
+
+issues=CLEAN
+
+========================================================================
+ARMOR OVERLAYS (build_player_armor.py)
+========================================================================
+checks per strip: size 852x156, frame corners alpha 0, lime residue, alpha px on frame edge,
+alignment = overlay px (a>8) outside body alpha (a>8) dilated 4 px [helm: rows above the body
+head top / behind the head exempt only for the dragon crest], bbox vs body bbox+4, floating
+components (a>32 blobs of >=2 px not touching the dilated body)
+
+player_gear_body_adamant_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_adamant_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_adamant_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_bronze_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_bronze_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_bronze_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_dragon_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_dragon_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_dragon_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_iron_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_iron_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_iron_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_mithril_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_mithril_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_mithril_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_rune_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_rune_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_rune_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_steel_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_steel_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_body_steel_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_adamant_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=717 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_adamant_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=722 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_adamant_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=792 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_bronze_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=460 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_bronze_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=415 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_bronze_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=455 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_dragon_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=491 crest_exempt=418 bbox_over=0 floating=0
+player_gear_helm_dragon_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=452 crest_exempt=381 bbox_over=0 floating=0
+player_gear_helm_dragon_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=493 crest_exempt=407 bbox_over=0 floating=0
+player_gear_helm_iron_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=460 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_iron_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=415 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_iron_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=455 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_mithril_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=717 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_mithril_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=722 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_mithril_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=792 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_rune_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=717 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_rune_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=722 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_rune_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=792 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_steel_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=460 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_steel_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=415 crest_exempt=0 bbox_over=0 floating=0
+player_gear_helm_steel_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4(info)=455 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_adamant_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_adamant_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_adamant_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_bronze_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_bronze_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_bronze_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_dragon_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_dragon_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_dragon_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_iron_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_iron_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_iron_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_mithril_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_mithril_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_mithril_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_rune_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_rune_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_rune_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_steel_attack.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_steel_idle.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+player_gear_legs_steel_walk.png: 852x156 corner=0 lime=0 greenish(info)=0 edge_px=0 outside_body_dil4=0 crest_exempt=0 bbox_over=0 floating=0
+
+helm fit med: idle scale=[0.4833, 0.4253] rot=0.00deg hair_covered=0.979, walk scale=[0.4833, 0.4253] rot=-0.44deg hair_covered=0.980, attack scale=[0.4833, 0.4253] rot=4.88deg hair_covered=0.979
+helm fit full: idle scale=[0.4992, 0.4393] rot=0.00deg hair_covered=0.989, walk scale=[0.4992, 0.4393] rot=-0.44deg hair_covered=0.998, attack scale=[0.4992, 0.4393] rot=4.88deg hair_covered=1.000
+helm fit dragon: idle scale=[0.498, 0.4382] rot=0.00deg hair_covered=0.850, walk scale=[0.498, 0.4382] rot=-0.44deg hair_covered=0.852, attack scale=[0.498, 0.4382] rot=4.88deg hair_covered=0.855
+
+armor issues=CLEAN

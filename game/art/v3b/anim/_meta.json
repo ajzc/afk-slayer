@@ -1,0 +1,168 @@
+{
+  "pack": "v3b-anim-clean-cutouts+bears",
+  "transparent_bg": true,
+  "sprites": {
+    "player_idle.png": {
+      "frames": 6,
+      "frame_w": 142,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "player_attack.png": {
+      "frames": 6,
+      "frame_w": 142,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "briar_idle.png": {
+      "frames": 6,
+      "frame_w": 185,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "briar_walk.png": {
+      "frames": 8,
+      "frame_w": 185,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "briar_attack.png": {
+      "frames": 6,
+      "frame_w": 185,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "quill_idle.png": {
+      "frames": 6,
+      "frame_w": 140,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "quill_shoot.png": {
+      "frames": 6,
+      "frame_w": 140,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "quill_turret.png": {
+      "frames": 1,
+      "frame_w": 119,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "crawling_hands_idle.png": {
+      "frames": 6,
+      "frame_w": 254,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "crawling_hands_walk.png": {
+      "frames": 6,
+      "frame_w": 254,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "crawling_hands_attack.png": {
+      "frames": 6,
+      "frame_w": 254,
+      "frame_h": 156,
+      "transparent": true
+    },
+    "arrow.png": {
+      "frames": 1,
+      "frame_w": 63,
+      "frame_h": 44,
+      "transparent": true
+    },
+    "bolt.png": {
+      "frames": 1,
+      "frame_w": 78,
+      "frame_h": 43,
+      "transparent": true
+    },
+    "bristle_cub_idle.png": {
+      "frames": 6,
+      "frame_w": 115,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 72
+    },
+    "bristle_cub_walk.png": {
+      "frames": 6,
+      "frame_w": 115,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 72
+    },
+    "bristle_cub_attack.png": {
+      "frames": 6,
+      "frame_w": 115,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 72
+    },
+    "thornpelt_bear_idle.png": {
+      "frames": 6,
+      "frame_w": 119,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 100
+    },
+    "thornpelt_bear_walk.png": {
+      "frames": 6,
+      "frame_w": 119,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 100
+    },
+    "thornpelt_bear_attack.png": {
+      "frames": 6,
+      "frame_w": 119,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 100
+    },
+    "dire_thornpelt_idle.png": {
+      "frames": 6,
+      "frame_w": 142,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 124
+    },
+    "dire_thornpelt_walk.png": {
+      "frames": 6,
+      "frame_w": 142,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 124
+    },
+    "dire_thornpelt_attack.png": {
+      "frames": 6,
+      "frame_w": 142,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 124
+    },
+    "elder_thornpelt_idle.png": {
+      "frames": 6,
+      "frame_w": 170,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 148
+    },
+    "elder_thornpelt_attack.png": {
+      "frames": 6,
+      "frame_w": 170,
+      "frame_h": 156,
+      "transparent": true,
+      "content_h": 148
+    }
+  },
+  "level1_bears": true,
+  "archived_live_ladder": [
+    "spectre",
+    "undercroft_mage",
+    "undercroft_overseer",
+    "crawling_hands"
+  ]
+}

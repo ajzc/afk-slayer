@@ -1,0 +1,12 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { chromium } = require('/usr/local/lib/node_modules/playwright-core');
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome-stable', headless: true, args: ['--no-sandbox'] });
+const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+p.on('pageerror', e => console.log('ERR', e));
+p.on('console', m => { if (m.type()==='error') console.log('CERR', m.text()); });
+await p.goto('http://127.0.0.1:8777/?x=' + Date.now(), { waitUntil: 'networkidle' });
+console.log(await p.evaluate(() => [window.CB_DATA.BUILD_ID, !!window.CB_GEARVIS, [...document.querySelectorAll('[data-tab]')].map(e=>e.dataset.tab).join(','), typeof window.CB_STATE.armorList]));
+await p.evaluate(() => { const st = window.CB_GAME.getState(); st.slayerLevel=5; window.CB_MAPS.setStrip('smithing', st); window.CB_UI.renderAll(st,'maps'); });
+console.log((await p.locator('#maps-body').innerText()).slice(0,800));
+await b.close();

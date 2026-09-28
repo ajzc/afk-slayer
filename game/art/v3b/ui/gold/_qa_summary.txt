@@ -1,0 +1,28 @@
+AFK Slayer gold icon QA summary
+================================
+Output dir: /workspace/contract-board/art/v3b/ui/gold
+Icons: 9 keys × 4 sizes = 36 PNGs
+coin_pop: 8 frames, 16×16 (strip 128×16) and 32×32 strip (256×32)
+
+Palette:
+  outline: #2A1A05
+  deep_shadow: #7A4A0A
+  mid_gold: #C8901A
+  base_gold: #F0C020
+  light: #FFE060
+  rim_highlight: #FFF6B0
+
+Issues: none
+  - All corners transparent
+  - Alpha binary 0/255 only
+  - Outline pixels present on every icon
+  - All expected files exist
+
+16px readability notes:
+  - coins_1_16 / coins_2_16: clearest — single/dual ellipse with rim + edge band reads well.
+  - coins_3_16 / coins_4_16 / coins_5_16: busy but still read as "several coins".
+  - coins_25_16: short stacks readable as small piles (improved with step=2).
+  - coins_100_16: multi-stack silhouette OK; some face detail survives.
+  - coins_250_16 / coins_1000_16: WEAKEST at 16px — individual coins merge into a gold mound.
+    Outline + top faces + edge stripes still sell "big pile". Do not expect countable coins.
+    Prefer 20px or 32px when the heap must read clearly.

@@ -1,0 +1,16 @@
+Ashfang wolf art QA
+frame_h=156; all strips have six frames
+
+ashfang_pup_idle.png: size=672x156; frame=112x156; content_h=65; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=178.76; residual_green_opaque=0
+ashfang_pup_walk.png: size=672x156; frame=112x156; content_h=65; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=172.80; residual_green_opaque=0
+ashfang_pup_attack.png: size=672x156; frame=112x156; content_h=66; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=176.18; residual_green_opaque=0
+ashfang_wolf_idle.png: size=888x156; frame=148x156; content_h=88; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=180.42; residual_green_opaque=0
+ashfang_wolf_walk.png: size=888x156; frame=148x156; content_h=88; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=178.84; residual_green_opaque=0
+ashfang_wolf_attack.png: size=888x156; frame=148x156; content_h=88; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=189.19; residual_green_opaque=0
+dire_ashfang_idle.png: size=1044x156; frame=174x156; content_h=102; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=191.50; residual_green_opaque=0
+dire_ashfang_walk.png: size=1044x156; frame=174x156; content_h=102; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=192.51; residual_green_opaque=0
+dire_ashfang_attack.png: size=1044x156; frame=174x156; content_h=102; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=196.79; residual_green_opaque=0
+ashfang_alpha_idle.png: size=1320x156; frame=220x156; content_h=127; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=198.60; residual_green_opaque=0
+ashfang_alpha_attack.png: size=1320x156; frame=220x156; content_h=127; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=194.12; residual_green_opaque=0
+
+issues=CLEAN

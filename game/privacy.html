@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#2b2b23" />
+  <title>Privacy · AFK Slayer</title>
+  <style>
+:root {
+  --bg: #2b2b23; --text: #ffffa0; --title: #ffff00; --muted: #a09a70;
+  --accent: #c9a227; --border-hi: #8b8355; --border-lo: #1a1810;
+  --panel: linear-gradient(180deg, #525244 0%, #3e3e34 100%);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; line-height: 1.55; }
+body { min-height: 100vh; padding: 24px 16px 48px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.panel {
+  background: var(--panel); border: 3px solid #000;
+  box-shadow: inset 1px 1px 0 var(--border-hi), inset -2px -2px 0 var(--border-lo), 2px 2px 0 #000;
+  padding: 20px 22px 28px;
+}
+h1 { color: var(--title); font-size: 1.45rem; margin: 0 0 6px; text-shadow: 1px 1px 0 #000; }
+h2 { color: var(--accent); font-size: 1.05rem; margin: 1.35em 0 0.4em; text-shadow: 1px 1px 0 #000; }
+p, li { font-size: 0.95rem; color: var(--text); }
+.muted { color: var(--muted); font-size: 0.85rem; }
+ul { padding-left: 1.25em; }
+a { color: var(--accent); }
+.nav { margin-bottom: 14px; font-size: 0.9rem; }
+.nav a { margin-right: 12px; text-decoration: none; font-weight: 700; }
+.nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="/">← AFK Slayer</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <div class="panel">
+      <h1>Privacy Policy</h1>
+      <p class="muted">AFK Slayer · Effective September 24, 2026</p>
+
+      <h2>Who we are</h2>
+      <p>AFK Slayer is a free browser game. This page explains what data we collect when you play and when you use Sign in with Google.</p>
+
+      <h2>Guest play (no sign-in)</h2>
+      <p>If you play without signing in, your progress is stored only in your browser’s <strong>localStorage</strong> on your device. We do not receive that guest save on our servers.</p>
+
+      <h2>Sign in with Google</h2>
+      <p>When you choose Sign in with Google, Google sends us an ID token. We verify it and store:</p>
+      <ul>
+        <li>Your Google account ID (<code>sub</code>)</li>
+        <li>Your email address</li>
+      </ul>
+      <p>We do <strong>not</strong> store your Google display name or profile picture, even if they appear in the token.</p>
+
+      <h2>Cloud saves and session</h2>
+      <p>When you are signed in we store:</p>
+      <ul>
+        <li>Your game save data (progress, settings inside the save, and related game state)</li>
+        <li>A session cookie (<code>afk_session</code>) that is HttpOnly, Secure, and SameSite=Lax, used to keep you signed in</li>
+      </ul>
+      <p>Save data and related account records are hosted on <strong>Cloudflare</strong> (D1 database and KV storage) for the AFK Slayer Worker.</p>
+
+      <h2>What we do not do</h2>
+      <ul>
+        <li>We do not show ads in the game.</li>
+        <li>We do not sell your personal data.</li>
+        <li>We do not use third-party analytics SDKs in the game client.</li>
+      </ul>
+      <p class="muted">Cloudflare, as our host, may process standard technical request data (such as IP address and timestamps) to operate the service, including rate limiting sign-in attempts.</p>
+
+      <h2>Cookies</h2>
+      <p>The only first-party cookie we set for accounts is the session cookie described above. Guests do not need it.</p>
+
+      <h2>Data retention and deletion</h2>
+      <p>Cloud saves remain while your account is active. To request deletion of your account and cloud save, email <a href="mailto:ajchapman20@gmail.com">ajchapman20@gmail.com</a> from the address on the account (or clearly identify the Google email you used). We will delete or anonymize stored account and save records associated with that sign-in.</p>
+
+      <h2>Children</h2>
+      <p>AFK Slayer is a general-audience browser game. Do not sign in with Google if you are not allowed to use Google’s services in your region.</p>
+
+      <h2>Contact</h2>
+      <p>Questions about privacy: <a href="mailto:ajchapman20@gmail.com">ajchapman20@gmail.com</a></p>
+
+      <p class="muted" style="margin-top:1.5em">See also our <a href="/terms">Terms of Use</a>.</p>
+    </div>
+  </div>
+</body>
+</html>

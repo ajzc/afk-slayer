@@ -1,0 +1,415 @@
+could not get a list of mounted file-systems
+Blender 4.3.2
+Fra:1 Mem:52.35M (Peak 52.35M) | Time:00:01.42 | Rendering 1 / 28 samples
+Fra:1 Mem:52.35M (Peak 52.35M) | Time:00:04.68 | Rendering 25 / 28 samples
+Fra:1 Mem:52.35M (Peak 52.35M) | Time:00:05.08 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_idle/00.png'
+Time: 00:05.22 (Saving: 00:00.13)
+
+Fra:2 Mem:52.35M (Peak 52.35M) | Time:00:00.86 | Rendering 1 / 28 samples
+Fra:2 Mem:52.35M (Peak 52.35M) | Time:00:04.04 | Rendering 25 / 28 samples
+Fra:2 Mem:52.35M (Peak 52.35M) | Time:00:04.43 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_idle/01.png'
+Time: 00:04.43 (Saving: 00:00.00)
+
+Fra:3 Mem:52.35M (Peak 52.35M) | Time:00:00.83 | Rendering 1 / 28 samples
+Fra:3 Mem:52.35M (Peak 52.35M) | Time:00:04.00 | Rendering 25 / 28 samples
+Fra:3 Mem:52.35M (Peak 52.35M) | Time:00:04.41 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_idle/02.png'
+Time: 00:04.42 (Saving: 00:00.00)
+
+Fra:4 Mem:52.35M (Peak 52.35M) | Time:00:00.79 | Rendering 1 / 28 samples
+Fra:4 Mem:52.35M (Peak 52.35M) | Time:00:03.99 | Rendering 25 / 28 samples
+Fra:4 Mem:52.35M (Peak 52.35M) | Time:00:04.38 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_idle/03.png'
+Time: 00:04.39 (Saving: 00:00.00)
+
+Fra:5 Mem:52.35M (Peak 52.35M) | Time:00:00.80 | Rendering 1 / 28 samples
+Fra:5 Mem:52.35M (Peak 52.35M) | Time:00:03.88 | Rendering 25 / 28 samples
+Fra:5 Mem:52.35M (Peak 52.35M) | Time:00:04.28 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_idle/04.png'
+Time: 00:04.28 (Saving: 00:00.00)
+
+Fra:6 Mem:52.35M (Peak 52.35M) | Time:00:00.78 | Rendering 1 / 28 samples
+Fra:6 Mem:52.35M (Peak 52.35M) | Time:00:04.14 | Rendering 25 / 28 samples
+Fra:6 Mem:52.35M (Peak 52.35M) | Time:00:04.54 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_idle/05.png'
+Time: 00:04.55 (Saving: 00:00.00)
+
+Fra:7 Mem:52.35M (Peak 52.35M) | Time:00:00.69 | Rendering 1 / 28 samples
+Fra:7 Mem:52.35M (Peak 52.35M) | Time:00:03.79 | Rendering 25 / 28 samples
+Fra:7 Mem:52.35M (Peak 52.35M) | Time:00:04.15 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_idle/06.png'
+Time: 00:04.16 (Saving: 00:00.00)
+
+Fra:8 Mem:52.35M (Peak 52.35M) | Time:00:00.66 | Rendering 1 / 28 samples
+Fra:8 Mem:52.35M (Peak 52.35M) | Time:00:03.89 | Rendering 25 / 28 samples
+Fra:8 Mem:52.35M (Peak 52.35M) | Time:00:04.29 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_idle/07.png'
+Time: 00:04.29 (Saving: 00:00.00)
+
+Fra:1 Mem:52.34M (Peak 52.34M) | Time:00:00.75 | Rendering 1 / 28 samples
+Fra:1 Mem:52.34M (Peak 52.34M) | Time:00:03.81 | Rendering 25 / 28 samples
+Fra:1 Mem:52.34M (Peak 52.34M) | Time:00:04.21 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_attack/00.png'
+Time: 00:04.21 (Saving: 00:00.00)
+
+Fra:2 Mem:52.34M (Peak 52.34M) | Time:00:00.64 | Rendering 1 / 28 samples
+Fra:2 Mem:52.34M (Peak 52.34M) | Time:00:03.68 | Rendering 25 / 28 samples
+Fra:2 Mem:52.34M (Peak 52.34M) | Time:00:04.05 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_attack/01.png'
+Time: 00:04.06 (Saving: 00:00.00)
+
+Fra:3 Mem:52.34M (Peak 52.34M) | Time:00:00.69 | Rendering 1 / 28 samples
+Fra:3 Mem:52.34M (Peak 52.34M) | Time:00:03.89 | Rendering 25 / 28 samples
+Fra:3 Mem:52.34M (Peak 52.34M) | Time:00:04.27 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_attack/02.png'
+Time: 00:04.27 (Saving: 00:00.00)
+
+Fra:4 Mem:52.34M (Peak 52.34M) | Time:00:00.67 | Rendering 1 / 28 samples
+Fra:4 Mem:52.34M (Peak 52.34M) | Time:00:03.92 | Rendering 25 / 28 samples
+Fra:4 Mem:52.34M (Peak 52.34M) | Time:00:04.29 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_attack/03.png'
+Time: 00:04.30 (Saving: 00:00.00)
+
+Fra:5 Mem:52.34M (Peak 52.34M) | Time:00:00.68 | Rendering 1 / 28 samples
+Fra:5 Mem:52.34M (Peak 52.34M) | Time:00:03.73 | Rendering 25 / 28 samples
+Fra:5 Mem:52.34M (Peak 52.34M) | Time:00:04.14 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_attack/04.png'
+Time: 00:04.14 (Saving: 00:00.00)
+
+Fra:6 Mem:52.34M (Peak 52.34M) | Time:00:00.66 | Rendering 1 / 28 samples
+Fra:6 Mem:52.34M (Peak 52.34M) | Time:00:03.64 | Rendering 25 / 28 samples
+Fra:6 Mem:52.34M (Peak 52.34M) | Time:00:04.02 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/player_attack/05.png'
+Time: 00:04.02 (Saving: 00:00.00)
+
+Fra:1 Mem:55.11M (Peak 55.11M) | Time:00:00.70 | Rendering 1 / 28 samples
+Fra:1 Mem:55.11M (Peak 55.11M) | Time:00:04.06 | Rendering 25 / 28 samples
+Fra:1 Mem:55.11M (Peak 55.11M) | Time:00:04.46 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_idle/00.png'
+Time: 00:04.46 (Saving: 00:00.00)
+
+Fra:2 Mem:55.11M (Peak 55.11M) | Time:00:00.72 | Rendering 1 / 28 samples
+Fra:2 Mem:55.11M (Peak 55.11M) | Time:00:03.86 | Rendering 25 / 28 samples
+Fra:2 Mem:55.11M (Peak 55.11M) | Time:00:04.25 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_idle/01.png'
+Time: 00:04.25 (Saving: 00:00.00)
+
+Fra:3 Mem:55.11M (Peak 55.11M) | Time:00:00.71 | Rendering 1 / 28 samples
+Fra:3 Mem:55.11M (Peak 55.11M) | Time:00:03.90 | Rendering 25 / 28 samples
+Fra:3 Mem:55.11M (Peak 55.11M) | Time:00:04.32 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_idle/02.png'
+Time: 00:04.32 (Saving: 00:00.00)
+
+Fra:4 Mem:55.11M (Peak 55.11M) | Time:00:00.71 | Rendering 1 / 28 samples
+Fra:4 Mem:55.11M (Peak 55.11M) | Time:00:04.21 | Rendering 25 / 28 samples
+Fra:4 Mem:55.11M (Peak 55.11M) | Time:00:04.61 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_idle/03.png'
+Time: 00:04.62 (Saving: 00:00.00)
+
+Fra:5 Mem:55.11M (Peak 55.11M) | Time:00:00.80 | Rendering 1 / 28 samples
+Fra:5 Mem:55.11M (Peak 55.11M) | Time:00:03.98 | Rendering 25 / 28 samples
+Fra:5 Mem:55.11M (Peak 55.11M) | Time:00:04.38 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_idle/04.png'
+Time: 00:04.39 (Saving: 00:00.00)
+
+Fra:6 Mem:55.11M (Peak 55.11M) | Time:00:00.68 | Rendering 1 / 28 samples
+Fra:6 Mem:55.11M (Peak 55.11M) | Time:00:03.84 | Rendering 25 / 28 samples
+Fra:6 Mem:55.11M (Peak 55.11M) | Time:00:04.25 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_idle/05.png'
+Time: 00:04.26 (Saving: 00:00.00)
+
+Fra:7 Mem:55.11M (Peak 55.11M) | Time:00:00.69 | Rendering 1 / 28 samples
+Fra:7 Mem:55.11M (Peak 55.11M) | Time:00:03.88 | Rendering 25 / 28 samples
+Fra:7 Mem:55.11M (Peak 55.11M) | Time:00:04.27 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_idle/06.png'
+Time: 00:04.28 (Saving: 00:00.00)
+
+Fra:8 Mem:55.11M (Peak 55.11M) | Time:00:00.70 | Rendering 1 / 28 samples
+Fra:8 Mem:55.11M (Peak 55.11M) | Time:00:03.85 | Rendering 25 / 28 samples
+Fra:8 Mem:55.11M (Peak 55.11M) | Time:00:04.25 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_idle/07.png'
+Time: 00:04.25 (Saving: 00:00.00)
+
+Fra:1 Mem:55.21M (Peak 55.21M) | Time:00:00.74 | Rendering 1 / 28 samples
+Fra:1 Mem:55.21M (Peak 55.21M) | Time:00:04.04 | Rendering 25 / 28 samples
+Fra:1 Mem:55.21M (Peak 55.21M) | Time:00:04.45 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_walk/00.png'
+Time: 00:04.46 (Saving: 00:00.00)
+
+Fra:2 Mem:55.21M (Peak 55.21M) | Time:00:00.64 | Rendering 1 / 28 samples
+Fra:2 Mem:55.21M (Peak 55.21M) | Time:00:03.78 | Rendering 25 / 28 samples
+Fra:2 Mem:55.21M (Peak 55.21M) | Time:00:04.19 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_walk/01.png'
+Time: 00:04.20 (Saving: 00:00.00)
+
+Fra:3 Mem:55.21M (Peak 55.21M) | Time:00:00.76 | Rendering 1 / 28 samples
+Fra:3 Mem:55.21M (Peak 55.21M) | Time:00:04.22 | Rendering 25 / 28 samples
+Fra:3 Mem:55.21M (Peak 55.21M) | Time:00:04.67 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_walk/02.png'
+Time: 00:04.68 (Saving: 00:00.00)
+
+Fra:4 Mem:55.21M (Peak 55.21M) | Time:00:00.78 | Rendering 1 / 28 samples
+Fra:4 Mem:55.21M (Peak 55.21M) | Time:00:04.16 | Rendering 25 / 28 samples
+Fra:4 Mem:55.21M (Peak 55.21M) | Time:00:04.60 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_walk/03.png'
+Time: 00:04.60 (Saving: 00:00.00)
+
+Fra:5 Mem:55.21M (Peak 55.21M) | Time:00:00.79 | Rendering 1 / 28 samples
+Fra:5 Mem:55.21M (Peak 55.21M) | Time:00:04.26 | Rendering 25 / 28 samples
+Fra:5 Mem:55.21M (Peak 55.21M) | Time:00:04.69 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_walk/04.png'
+Time: 00:04.70 (Saving: 00:00.00)
+
+Fra:6 Mem:55.21M (Peak 55.21M) | Time:00:00.84 | Rendering 1 / 28 samples
+Fra:6 Mem:55.21M (Peak 55.21M) | Time:00:04.20 | Rendering 25 / 28 samples
+Fra:6 Mem:55.21M (Peak 55.21M) | Time:00:04.59 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_walk/05.png'
+Time: 00:04.60 (Saving: 00:00.00)
+
+Fra:7 Mem:55.21M (Peak 55.21M) | Time:00:00.72 | Rendering 1 / 28 samples
+Fra:7 Mem:55.21M (Peak 55.21M) | Time:00:03.96 | Rendering 25 / 28 samples
+Fra:7 Mem:55.21M (Peak 55.21M) | Time:00:04.38 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_walk/06.png'
+Time: 00:04.38 (Saving: 00:00.00)
+
+Fra:8 Mem:55.21M (Peak 55.21M) | Time:00:00.64 | Rendering 1 / 28 samples
+Fra:8 Mem:55.21M (Peak 55.21M) | Time:00:03.80 | Rendering 25 / 28 samples
+Fra:8 Mem:55.21M (Peak 55.21M) | Time:00:04.18 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_walk/07.png'
+Time: 00:04.18 (Saving: 00:00.00)
+
+Fra:1 Mem:55.12M (Peak 55.12M) | Time:00:00.85 | Rendering 1 / 28 samples
+Fra:1 Mem:55.12M (Peak 55.12M) | Time:00:03.98 | Rendering 25 / 28 samples
+Fra:1 Mem:55.12M (Peak 55.12M) | Time:00:04.36 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_attack/00.png'
+Time: 00:04.37 (Saving: 00:00.00)
+
+Fra:2 Mem:55.12M (Peak 55.12M) | Time:00:00.79 | Rendering 1 / 28 samples
+Fra:2 Mem:55.12M (Peak 55.12M) | Time:00:04.12 | Rendering 25 / 28 samples
+Fra:2 Mem:55.12M (Peak 55.12M) | Time:00:04.53 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_attack/01.png'
+Time: 00:04.54 (Saving: 00:00.00)
+
+Fra:3 Mem:55.12M (Peak 55.12M) | Time:00:00.80 | Rendering 1 / 28 samples
+Fra:3 Mem:55.12M (Peak 55.12M) | Time:00:04.02 | Rendering 25 / 28 samples
+Fra:3 Mem:55.12M (Peak 55.12M) | Time:00:04.42 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_attack/02.png'
+Time: 00:04.42 (Saving: 00:00.00)
+
+Fra:4 Mem:55.12M (Peak 55.12M) | Time:00:00.82 | Rendering 1 / 28 samples
+Fra:4 Mem:55.12M (Peak 55.12M) | Time:00:04.05 | Rendering 25 / 28 samples
+Fra:4 Mem:55.12M (Peak 55.12M) | Time:00:04.44 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_attack/03.png'
+Time: 00:04.45 (Saving: 00:00.00)
+
+Fra:5 Mem:55.12M (Peak 55.12M) | Time:00:00.82 | Rendering 1 / 28 samples
+Fra:5 Mem:55.12M (Peak 55.12M) | Time:00:04.05 | Rendering 25 / 28 samples
+Fra:5 Mem:55.12M (Peak 55.12M) | Time:00:04.45 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_attack/04.png'
+Time: 00:04.46 (Saving: 00:00.00)
+
+Fra:6 Mem:55.12M (Peak 55.12M) | Time:00:00.68 | Rendering 1 / 28 samples
+Fra:6 Mem:55.12M (Peak 55.12M) | Time:00:03.92 | Rendering 25 / 28 samples
+Fra:6 Mem:55.12M (Peak 55.12M) | Time:00:04.33 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/briar_attack/05.png'
+Time: 00:04.33 (Saving: 00:00.00)
+
+Fra:1 Mem:50.04M (Peak 50.04M) | Time:00:00.68 | Rendering 1 / 28 samples
+Fra:1 Mem:50.04M (Peak 50.04M) | Time:00:03.67 | Rendering 25 / 28 samples
+Fra:1 Mem:50.04M (Peak 50.04M) | Time:00:04.04 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_idle/00.png'
+Time: 00:04.05 (Saving: 00:00.00)
+
+Fra:2 Mem:50.04M (Peak 50.04M) | Time:00:00.68 | Rendering 1 / 28 samples
+Fra:2 Mem:50.04M (Peak 50.04M) | Time:00:03.68 | Rendering 25 / 28 samples
+Fra:2 Mem:50.04M (Peak 50.04M) | Time:00:04.05 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_idle/01.png'
+Time: 00:04.06 (Saving: 00:00.00)
+
+Fra:3 Mem:50.04M (Peak 50.04M) | Time:00:00.87 | Rendering 1 / 28 samples
+Fra:3 Mem:50.04M (Peak 50.04M) | Time:00:03.84 | Rendering 25 / 28 samples
+Fra:3 Mem:50.04M (Peak 50.04M) | Time:00:04.22 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_idle/02.png'
+Time: 00:04.23 (Saving: 00:00.00)
+
+Fra:4 Mem:50.04M (Peak 50.04M) | Time:00:00.68 | Rendering 1 / 28 samples
+Fra:4 Mem:50.04M (Peak 50.04M) | Time:00:03.69 | Rendering 25 / 28 samples
+Fra:4 Mem:50.04M (Peak 50.04M) | Time:00:04.05 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_idle/03.png'
+Time: 00:04.06 (Saving: 00:00.00)
+
+Fra:5 Mem:50.04M (Peak 50.04M) | Time:00:00.78 | Rendering 1 / 28 samples
+Fra:5 Mem:50.04M (Peak 50.04M) | Time:00:03.64 | Rendering 25 / 28 samples
+Fra:5 Mem:50.04M (Peak 50.04M) | Time:00:04.03 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_idle/04.png'
+Time: 00:04.03 (Saving: 00:00.00)
+
+Fra:6 Mem:50.04M (Peak 50.04M) | Time:00:00.65 | Rendering 1 / 28 samples
+Fra:6 Mem:50.04M (Peak 50.04M) | Time:00:03.60 | Rendering 25 / 28 samples
+Fra:6 Mem:50.04M (Peak 50.04M) | Time:00:03.94 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_idle/05.png'
+Time: 00:03.95 (Saving: 00:00.00)
+
+Fra:7 Mem:50.04M (Peak 50.04M) | Time:00:00.77 | Rendering 1 / 28 samples
+Fra:7 Mem:50.04M (Peak 50.04M) | Time:00:03.66 | Rendering 25 / 28 samples
+Fra:7 Mem:50.04M (Peak 50.04M) | Time:00:04.00 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_idle/06.png'
+Time: 00:04.01 (Saving: 00:00.00)
+
+Fra:8 Mem:50.04M (Peak 50.04M) | Time:00:00.73 | Rendering 1 / 28 samples
+Fra:8 Mem:50.04M (Peak 50.04M) | Time:00:03.72 | Rendering 25 / 28 samples
+Fra:8 Mem:50.04M (Peak 50.04M) | Time:00:04.07 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_idle/07.png'
+Time: 00:04.08 (Saving: 00:00.00)
+
+Fra:1 Mem:50.45M (Peak 50.45M) | Time:00:00.87 | Rendering 1 / 28 samples
+Fra:1 Mem:50.45M (Peak 50.45M) | Time:00:03.98 | Rendering 25 / 28 samples
+Fra:1 Mem:50.45M (Peak 50.45M) | Time:00:04.36 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_shoot/00.png'
+Time: 00:04.36 (Saving: 00:00.00)
+
+Fra:2 Mem:50.45M (Peak 50.45M) | Time:00:00.76 | Rendering 1 / 28 samples
+Fra:2 Mem:50.45M (Peak 50.45M) | Time:00:03.72 | Rendering 25 / 28 samples
+Fra:2 Mem:50.45M (Peak 50.45M) | Time:00:04.09 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_shoot/01.png'
+Time: 00:04.09 (Saving: 00:00.00)
+
+Fra:3 Mem:50.45M (Peak 50.45M) | Time:00:00.71 | Rendering 1 / 28 samples
+Fra:3 Mem:50.45M (Peak 50.45M) | Time:00:03.62 | Rendering 25 / 28 samples
+Fra:3 Mem:50.45M (Peak 50.45M) | Time:00:03.99 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_shoot/02.png'
+Time: 00:04.00 (Saving: 00:00.00)
+
+Fra:4 Mem:50.45M (Peak 50.45M) | Time:00:00.79 | Rendering 1 / 28 samples
+Fra:4 Mem:50.45M (Peak 50.45M) | Time:00:03.94 | Rendering 25 / 28 samples
+Fra:4 Mem:50.45M (Peak 50.45M) | Time:00:04.31 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_shoot/03.png'
+Time: 00:04.32 (Saving: 00:00.00)
+
+Fra:5 Mem:50.41M (Peak 50.41M) | Time:00:00.79 | Rendering 1 / 28 samples
+Fra:5 Mem:50.41M (Peak 50.41M) | Time:00:03.68 | Rendering 25 / 28 samples
+Fra:5 Mem:50.41M (Peak 50.41M) | Time:00:04.04 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_shoot/04.png'
+Time: 00:04.05 (Saving: 00:00.00)
+
+Fra:6 Mem:50.41M (Peak 50.41M) | Time:00:00.66 | Rendering 1 / 28 samples
+Fra:6 Mem:50.41M (Peak 50.41M) | Time:00:03.61 | Rendering 25 / 28 samples
+Fra:6 Mem:50.41M (Peak 50.41M) | Time:00:04.01 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_shoot/05.png'
+Time: 00:04.01 (Saving: 00:00.00)
+
+Fra:6 Mem:50.17M (Peak 50.17M) | Time:00:00.86 | Rendering 1 / 28 samples
+Fra:6 Mem:50.17M (Peak 50.17M) | Time:00:03.98 | Rendering 25 / 28 samples
+Fra:6 Mem:50.17M (Peak 50.17M) | Time:00:04.37 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/quill_turret.png'
+Time: 00:04.37 (Saving: 00:00.00)
+
+Fra:1 Mem:59.81M (Peak 59.81M) | Time:00:00.84 | Rendering 1 / 28 samples
+Fra:1 Mem:59.81M (Peak 59.81M) | Time:00:04.33 | Rendering 25 / 28 samples
+Fra:1 Mem:59.81M (Peak 59.81M) | Time:00:04.73 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_idle/00.png'
+Time: 00:04.73 (Saving: 00:00.00)
+
+Fra:2 Mem:59.81M (Peak 59.81M) | Time:00:00.83 | Rendering 1 / 28 samples
+Fra:2 Mem:59.81M (Peak 59.81M) | Time:00:04.23 | Rendering 25 / 28 samples
+Fra:2 Mem:59.81M (Peak 59.81M) | Time:00:04.68 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_idle/01.png'
+Time: 00:04.68 (Saving: 00:00.00)
+
+Fra:3 Mem:59.81M (Peak 59.81M) | Time:00:00.81 | Rendering 1 / 28 samples
+Fra:3 Mem:59.81M (Peak 59.81M) | Time:00:04.36 | Rendering 25 / 28 samples
+Fra:3 Mem:59.81M (Peak 59.81M) | Time:00:04.81 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_idle/02.png'
+Time: 00:04.81 (Saving: 00:00.00)
+
+Fra:4 Mem:59.81M (Peak 59.81M) | Time:00:00.94 | Rendering 1 / 28 samples
+Fra:4 Mem:59.81M (Peak 59.81M) | Time:00:04.26 | Rendering 25 / 28 samples
+Fra:4 Mem:59.81M (Peak 59.81M) | Time:00:04.69 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_idle/03.png'
+Time: 00:04.70 (Saving: 00:00.00)
+
+Fra:5 Mem:59.81M (Peak 59.81M) | Time:00:00.83 | Rendering 1 / 28 samples
+Fra:5 Mem:59.81M (Peak 59.81M) | Time:00:04.20 | Rendering 25 / 28 samples
+Fra:5 Mem:59.81M (Peak 59.81M) | Time:00:04.59 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_idle/04.png'
+Time: 00:04.60 (Saving: 00:00.00)
+
+Fra:6 Mem:59.81M (Peak 59.81M) | Time:00:00.93 | Rendering 1 / 28 samples
+Fra:6 Mem:59.81M (Peak 59.81M) | Time:00:04.77 | Rendering 25 / 28 samples
+Fra:6 Mem:59.81M (Peak 59.81M) | Time:00:05.18 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_idle/05.png'
+Time: 00:05.19 (Saving: 00:00.00)
+
+Fra:7 Mem:59.81M (Peak 59.81M) | Time:00:00.84 | Rendering 1 / 28 samples
+Fra:7 Mem:59.81M (Peak 59.81M) | Time:00:04.26 | Rendering 25 / 28 samples
+Fra:7 Mem:59.81M (Peak 59.81M) | Time:00:04.66 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_idle/06.png'
+Time: 00:04.67 (Saving: 00:00.00)
+
+Fra:8 Mem:59.81M (Peak 59.81M) | Time:00:00.88 | Rendering 1 / 28 samples
+Fra:8 Mem:59.81M (Peak 59.81M) | Time:00:04.37 | Rendering 25 / 28 samples
+Fra:8 Mem:59.81M (Peak 59.81M) | Time:00:04.81 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_idle/07.png'
+Time: 00:04.82 (Saving: 00:00.00)
+
+Fra:1 Mem:59.84M (Peak 59.84M) | Time:00:00.86 | Rendering 1 / 28 samples
+Fra:1 Mem:59.84M (Peak 59.84M) | Time:00:04.25 | Rendering 25 / 28 samples
+Fra:1 Mem:59.84M (Peak 59.84M) | Time:00:04.68 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_attack/00.png'
+Time: 00:04.69 (Saving: 00:00.00)
+
+Fra:2 Mem:59.84M (Peak 59.84M) | Time:00:00.87 | Rendering 1 / 28 samples
+Fra:2 Mem:59.84M (Peak 59.84M) | Time:00:04.17 | Rendering 25 / 28 samples
+Fra:2 Mem:59.84M (Peak 59.84M) | Time:00:04.58 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_attack/01.png'
+Time: 00:04.59 (Saving: 00:00.00)
+
+Fra:3 Mem:59.84M (Peak 59.84M) | Time:00:00.87 | Rendering 1 / 28 samples
+Fra:3 Mem:59.84M (Peak 59.84M) | Time:00:04.19 | Rendering 25 / 28 samples
+Fra:3 Mem:59.84M (Peak 59.84M) | Time:00:04.60 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_attack/02.png'
+Time: 00:04.60 (Saving: 00:00.00)
+
+Fra:4 Mem:59.84M (Peak 59.84M) | Time:00:00.84 | Rendering 1 / 28 samples
+Fra:4 Mem:59.84M (Peak 59.84M) | Time:00:04.22 | Rendering 25 / 28 samples
+Fra:4 Mem:59.84M (Peak 59.84M) | Time:00:04.65 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_attack/03.png'
+Time: 00:04.66 (Saving: 00:00.00)
+
+Fra:5 Mem:59.84M (Peak 59.84M) | Time:00:00.79 | Rendering 1 / 28 samples
+Fra:5 Mem:59.84M (Peak 59.84M) | Time:00:04.19 | Rendering 25 / 28 samples
+Fra:5 Mem:59.84M (Peak 59.84M) | Time:00:04.65 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_attack/04.png'
+Time: 00:04.65 (Saving: 00:00.00)
+
+Fra:6 Mem:59.84M (Peak 59.84M) | Time:00:00.93 | Rendering 1 / 28 samples
+Fra:6 Mem:59.84M (Peak 59.84M) | Time:00:04.28 | Rendering 25 / 28 samples
+Fra:6 Mem:59.84M (Peak 59.84M) | Time:00:04.67 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/crawling_hands_attack/05.png'
+Time: 00:04.68 (Saving: 00:00.00)
+
+Fra:6 Mem:46.79M (Peak 46.79M) | Time:00:00.73 | Rendering 1 / 28 samples
+Fra:6 Mem:46.79M (Peak 46.79M) | Time:00:01.92 | Rendering 25 / 28 samples
+Fra:6 Mem:46.79M (Peak 46.79M) | Time:00:02.08 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/bolt.png'
+Time: 00:02.08 (Saving: 00:00.00)
+
+Fra:6 Mem:47.01M (Peak 47.01M) | Time:00:00.60 | Rendering 1 / 28 samples
+Fra:6 Mem:47.01M (Peak 47.01M) | Time:00:01.74 | Rendering 25 / 28 samples
+Fra:6 Mem:47.01M (Peak 47.01M) | Time:00:01.87 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/arrow.png'
+Time: 00:01.88 (Saving: 00:00.00)
+
+Fra:6 Mem:55.72M (Peak 55.72M) | Time:00:00.75 | Rendering 1 / 28 samples
+Fra:6 Mem:55.72M (Peak 55.72M) | Time:00:05.11 | Rendering 25 / 28 samples
+Fra:6 Mem:55.72M (Peak 55.72M) | Time:00:05.63 | Rendering 28 / 28 samples
+Saved: '/workspace/contract-board/art/v3/_frames/arena_floor.png'
+Time: 00:05.68 (Saving: 00:00.04)
+
+=== Contract Board v3 Option C render ===
+POLY {'player': 878, 'briar': 880, 'quill': 554, 'quill_turret': 430, 'crawling_hands': 826}
+frames done -> /workspace/contract-board/art/v3/_frames
+
+Blender quit

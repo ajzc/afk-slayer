@@ -1,0 +1,14 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { chromium } = require('/usr/local/lib/node_modules/playwright-core');
+const BASE = process.argv[2] || 'http://127.0.0.1:8777/';
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome-stable', headless: true, args: ['--no-sandbox'] });
+const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+await p.goto(BASE + '?f=' + Date.now(), { waitUntil: 'networkidle' });
+await p.waitForTimeout(800);
+const bb = await p.locator('.tab-btn[data-tab="board"]').boundingBox();
+await p.mouse.click(bb.x + bb.width / 2, bb.y + bb.height / 2);
+await p.waitForTimeout(500);
+await p.screenshot({ path: '/workspace/_sim/board.png' });
+console.log(await p.evaluate(() => [...document.querySelectorAll('[data-action="accept"]')].map(e => { const r = e.getBoundingClientRect(); return e.dataset.id + ' ' + e.disabled + ' ' + Math.round(r.y) + ' ' + e.innerText.trim().slice(0,20) + ' vis:' + (r.width > 0); })));
+await b.close();

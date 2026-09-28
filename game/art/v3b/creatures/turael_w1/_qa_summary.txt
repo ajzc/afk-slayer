@@ -1,0 +1,16 @@
+Turael W1 creature art QA
+frame_h=156; strips have six frames; boss has no walk
+
+gripkin_idle.png: size=690x156; frame=115x156; content_h=73; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=205.45; residual_green_opaque=0
+gripkin_walk.png: size=690x156; frame=115x156; content_h=73; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=204.46; residual_green_opaque=0
+gripkin_attack.png: size=690x156; frame=115x156; content_h=73; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=203.19; residual_green_opaque=0
+cave_skitter_idle.png: size=924x156; frame=154x156; content_h=101; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=213.06; residual_green_opaque=0
+cave_skitter_walk.png: size=924x156; frame=154x156; content_h=101; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=212.28; residual_green_opaque=0
+cave_skitter_attack.png: size=924x156; frame=154x156; content_h=101; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=213.16; residual_green_opaque=0
+wailshade_idle.png: size=852x156; frame=142x156; content_h=126; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=186.80; residual_green_opaque=0
+wailshade_walk.png: size=852x156; frame=142x156; content_h=126; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=186.63; residual_green_opaque=0
+wailshade_attack.png: size=852x156; frame=142x156; content_h=126; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=191.85; residual_green_opaque=0
+gripkin_elder_idle.png: size=1020x156; frame=170x156; content_h=149; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=222.61; residual_green_opaque=0
+gripkin_elder_attack.png: size=1020x156; frame=170x156; content_h=149; corner_alpha=[0, 0, 0, 0]; mean_alpha_opaque=217.07; residual_green_opaque=0
+
+issues=CLEAN

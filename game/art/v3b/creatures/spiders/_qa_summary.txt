@@ -1,0 +1,16 @@
+AFK Slayer Level 3 spider art QA
+frame_h=156; all strips have six frames
+
+silkling_idle.png: size=780x156; frame=130x156; content_h=49; frame_content_h=[49, 50, 50, 49, 48, 49]; corner_alpha=0; residual_green_opaque=0
+silkling_walk.png: size=780x156; frame=130x156; content_h=50; frame_content_h=[50, 51, 51, 50, 49, 50]; corner_alpha=0; residual_green_opaque=0
+silkling_attack.png: size=780x156; frame=130x156; content_h=50; frame_content_h=[50, 50, 50, 49, 49, 50]; corner_alpha=0; residual_green_opaque=0
+webfen_widow_idle.png: size=1020x156; frame=170x156; content_h=79; frame_content_h=[79, 80, 80, 79, 78, 79]; corner_alpha=0; residual_green_opaque=0
+webfen_widow_walk.png: size=1020x156; frame=170x156; content_h=79; frame_content_h=[79, 80, 80, 79, 78, 79]; corner_alpha=0; residual_green_opaque=0
+webfen_widow_attack.png: size=1020x156; frame=170x156; content_h=79; frame_content_h=[79, 79, 80, 79, 79, 79]; corner_alpha=0; residual_green_opaque=0
+brood_matron_idle.png: size=1260x156; frame=210x156; content_h=101; frame_content_h=[101, 102, 102, 101, 100, 101]; corner_alpha=0; residual_green_opaque=0
+brood_matron_walk.png: size=1260x156; frame=210x156; content_h=101; frame_content_h=[101, 102, 102, 101, 100, 101]; corner_alpha=0; residual_green_opaque=0
+brood_matron_attack.png: size=1260x156; frame=210x156; content_h=101; frame_content_h=[101, 101, 102, 101, 101, 101]; corner_alpha=0; residual_green_opaque=0
+nightweave_idle.png: size=1560x156; frame=260x156; content_h=133; frame_content_h=[133, 134, 134, 133, 132, 133]; corner_alpha=0; residual_green_opaque=0
+nightweave_attack.png: size=1560x156; frame=260x156; content_h=133; frame_content_h=[133, 133, 134, 133, 133, 133]; corner_alpha=0; residual_green_opaque=0
+
+issues=CLEAN

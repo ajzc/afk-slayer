@@ -1,0 +1,12 @@
+issues=CLEAN
+
+files:
+  bolt.png: (48, 16)  1350 bytes
+  bolt@2x.png: (96, 32)  3624 bytes
+  bolt_anim.png: (96, 16)  1999 bytes
+  bolt_trail.png: (192, 16)  1606 bytes
+  bolt_trail@2x.png: (384, 32)  3732 bytes
+  bolt_impact.png: (192, 48)  4060 bytes
+  bolt_impact@2x.png: (384, 96)  9397 bytes
+  muzzle.png: (96, 32)  1785 bytes
+  muzzle@2x.png: (192, 64)  4302 bytes

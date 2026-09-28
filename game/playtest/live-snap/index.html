@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0e1118" />
+  <meta name="description" content="AFK Slayer — original AFK guild hunter idle game" />
+  <title>AFK Slayer</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-mark">⚔️</div>
+        <div>
+          <h1>AFK Slayer</h1>
+          <p class="tag">Slayer ladder · AFK hunt</p>
+        </div>
+      </div>
+      <div class="resources">
+        <div class="res res-gold-wrap"><span class="ico">🪙</span><span class="res-lab">Gold</span><span class="val" id="res-gold">0</span><span class="res-rate" id="res-gold-rate">+0/m</span></div>
+        <div class="res"><span class="ico">⭐</span><span class="res-lab">Slayer points</span><span class="val" id="res-points">0</span></div>
+        <div class="res"><span class="ico">🍞</span><span class="res-lab">Food</span><span class="val" id="res-food">0</span></div>
+        <div class="res hidden" id="res-scraps-wrap" title="Scraps — spend in Camp → Scrapwork.">
+          <span class="ico">🔩</span><span class="res-lab">Scraps</span><span class="val" id="res-scraps">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section id="screen-hunt" class="screen active">
+        <div id="hunt-body"></div>
+      </section>
+      <section id="screen-board" class="screen">
+        <div id="board-body"></div>
+      </section>
+      <section id="screen-upgrades" class="screen">
+        <div id="upgrades-body"></div>
+      </section>
+      <section id="screen-maps" class="screen">
+        <div id="maps-body"></div>
+      </section>
+      <section id="screen-guild" class="screen">
+        <div id="guild-body"></div>
+      </section>
+      <section id="screen-codex" class="screen">
+        <div id="codex-body"></div>
+      </section>
+      <section id="screen-settings" class="screen">
+        <div id="settings-body"></div>
+      </section>
+    </main>
+
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-inner" id="nav-inner">
+        <button type="button" class="tab-btn active" data-tab="hunt"><span class="ico">🗡️</span>Hunt</button>
+        <button type="button" class="tab-btn" data-tab="board"><span class="ico">📋</span>Slayer Master</button>
+        <button type="button" class="tab-btn" data-tab="maps"><span class="ico">🗺️</span>Progress</button>
+        <button type="button" class="tab-btn" data-tab="guild"><span class="ico">🏛️</span>Guild</button>
+        <button type="button" class="tab-btn" data-tab="codex"><span class="ico">📖</span>Codex</button>
+        <button type="button" class="tab-btn" data-tab="settings"><span class="ico">⚙️</span>Settings</button>
+      </div>
+    </nav>
+  </div>
+
+  <div id="claim-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="claim-title">
+    <div class="modal-sheet" id="claim-body">
+      <h2 id="claim-title">While you were away…</h2>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/format.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/chests.js"></script>
+  <script src="js/arena.js"></script>
+  <script src="js/maps.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/intro.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

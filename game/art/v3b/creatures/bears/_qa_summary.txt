@@ -1,0 +1,4 @@
+issues:
+level_badge_1.png: edge opacity high — possible mat
+level_badge_2.png: edge opacity high — possible mat
+level_badge_3.png: edge opacity high — possible mat
