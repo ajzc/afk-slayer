@@ -3741,3 +3741,218 @@ body.tab-hunt .target-switcher {
 }
 .pbolt-core { filter: drop-shadow(0 0 2px rgba(214,234,255,0.9)); }
 .pbolt-spark { background: #f4faff; box-shadow: 0 0 4px 1px rgba(128,178,232,0.9); }
+
+/* ===================== feel1 — game-feel pass ===================== */
+
+/* Fix 2 — instant touch response: ripple at the finger + staff glow */
+.touch-ripple {
+  position: absolute;
+  width: 44px; height: 44px;
+  margin: -22px 0 0 -22px;
+  border: 2px solid rgba(255, 255, 160, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 230, 90, 0.55);
+  pointer-events: none;
+  z-index: 9;
+  animation: touchRipple .3s cubic-bezier(.2,.8,.3,1) forwards;
+}
+@keyframes touchRipple {
+  0% { transform: scale(0.35); opacity: 1; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+body.reduce-motion .touch-ripple { animation: touchRippleFade .25s linear forwards; }
+@keyframes touchRippleFade { 0% { opacity: .9; } 100% { opacity: 0; } }
+.player-avatar.press-glow .cb-actor,
+.player-avatar.press-glow .player-fig {
+  filter: drop-shadow(0 0 6px rgba(255, 240, 120, 0.95)) brightness(1.15);
+}
+
+/* Fix 3 — gold pop actually applies to the HUD number (was `.res .val` only) */
+#res-gold { display: inline-block; transform-origin: 50% 60%; }
+#res-gold.flash-gold { animation: flashGoldHud .32s cubic-bezier(.2,.8,.3,1); }
+@keyframes flashGoldHud {
+  0% { transform: scale(1.28); filter: brightness(1.9); }
+  100% { transform: scale(1); filter: none; }
+}
+#res-gold-ico.gold-ico-pop { animation: goldIcoPop .3s cubic-bezier(.2,.8,.3,1); }
+@keyframes goldIcoPop {
+  0% { transform: scale(1.35) rotate(-8deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+body.reduce-motion #res-gold.flash-gold,
+body.reduce-motion #res-gold-ico.gold-ico-pop { animation: none; }
+/* Coin flight: 0.65s, pops out then accelerates into the HUD (duration from --fly-ms) */
+.float-txt.fly-header.kill-coin {
+  animation: flyHeaderCoinF1 var(--fly-ms, 650ms) linear forwards;
+}
+@keyframes flyHeaderCoinF1 {
+  0% { opacity: 0; transform: translate(-50%, -40%) scale(0.8); animation-timing-function: cubic-bezier(.2,.8,.3,1); }
+  18% { opacity: 1; transform: translate(-50%, -80%) scale(1.2); animation-timing-function: cubic-bezier(.55,.05,.85,.4); }
+  100% { opacity: 0.95; transform: translate(calc(-50% + var(--fly-x)), calc(-50% + var(--fly-y))) scale(0.55); }
+}
+
+/* Fix 4 — boss death moment */
+.mob.dying.boss-dying .mob-body {
+  animation: bossDie 1s cubic-bezier(.3,.7,.4,1) forwards;
+  transform-origin: 50% 100%;
+}
+@keyframes bossDie {
+  0% { transform: scale(1, 1); filter: brightness(3.2) saturate(0); opacity: 1; }
+  12% { transform: scale(1.18, 0.84); filter: brightness(2.4) saturate(0); }
+  28% { transform: scale(0.9, 1.14); filter: brightness(1.6); }
+  45% { transform: scale(1.05, 0.95); filter: brightness(1.2); opacity: 1; }
+  100% { transform: scale(0.25, 0.1) translateY(30px); filter: brightness(2); opacity: 0; }
+}
+body.reduce-motion .mob.dying.boss-dying .mob-body { animation: bossFade .9s linear forwards; }
+@keyframes bossFade { 0% { opacity: 1; filter: brightness(2); } 100% { opacity: 0; } }
+.spark.burst.big { width: 12px; height: 12px; animation-duration: .75s; box-shadow: 0 0 16px 4px rgba(255, 200, 60, 0.85); }
+.boss-shockwave {
+  position: absolute;
+  width: 40px; height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 245, 190, 0.95);
+  box-shadow: 0 0 24px rgba(255, 210, 80, 0.8), inset 0 0 14px rgba(255, 210, 80, 0.6);
+  pointer-events: none;
+  animation: bossShock .75s cubic-bezier(.15,.75,.3,1) forwards;
+}
+@keyframes bossShock {
+  0% { transform: scale(0.3); opacity: 1; }
+  100% { transform: scale(7); opacity: 0; }
+}
+body.reduce-motion .boss-shockwave { display: none; }
+.boss-banner {
+  position: fixed;
+  z-index: 130;
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+  min-width: 230px;
+  max-width: min(86vw, 380px);
+  padding: 12px 18px 11px;
+  text-align: center;
+  background: linear-gradient(180deg, #5a4820, #2e2612);
+  border: 3px solid #000;
+  outline: 2px solid #c9a227;
+  box-shadow: 0 0 28px rgba(255, 200, 60, 0.55), 4px 4px 0 #000;
+  color: #ffff00;
+  text-shadow: 2px 2px 0 #000;
+}
+.boss-banner .bb-kicker { font-size: 0.62rem; letter-spacing: 0.18em; color: #ffd98a; margin-bottom: 4px; }
+.boss-banner .bb-title { font-size: 1.15rem; font-weight: 900; line-height: 1.2; }
+.boss-banner .bb-sub { font-size: 0.72rem; color: #fff3c4; margin-top: 5px; line-height: 1.3; }
+.boss-banner.show { animation: bossBannerIn 2.6s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes bossBannerIn {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  10% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  18% { transform: translate(-50%, -50%) scale(1); }
+  85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -54%) scale(0.98); }
+}
+body.reduce-motion .boss-banner.show { animation: bossBannerFade 2.6s linear forwards; }
+@keyframes bossBannerFade {
+  0% { opacity: 0; transform: translate(-50%, -50%); }
+  8%, 85% { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(-50%, -50%); }
+}
+
+/* Fix 5 — touches in the gaps of the target switcher reach the arena */
+.target-switcher { pointer-events: none !important; }
+.target-switcher .ts-btn { pointer-events: auto; }
+
+/* Fix 6 — toast lane at the top of the arena (never over the task bar) */
+body .toast {
+  top: var(--toast-top, calc(var(--hud-h, 64px) + 8px)) !important; /* feel2: below the open intro panel */
+  bottom: auto !important;
+  transform: translateX(-50%) translateY(-10px) !important;
+  transition: opacity .16s ease, transform .2s cubic-bezier(.2,.8,.3,1) !important;
+  z-index: 90 !important;
+}
+body .toast.show { transform: translateX(-50%) translateY(0) !important; }
+body .toast.multi { text-align: left; }
+body .toast .toast-line + .toast-line {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(0, 0, 0, 0.45);
+}
+body.reduce-motion .toast,
+body.reduce-motion .toast.show { transform: translateX(-50%) !important; }
+
+/* Fix 7 — squash & stretch + single white flash + readable knockback */
+.mob.hit .mob-body {
+  animation: mobHit .14s cubic-bezier(.2,.8,.3,1);
+  transform-origin: 50% 100%;
+}
+@keyframes mobHit {
+  0% { transform: scale(1, 1); }
+  30% { transform: scale(var(--sq-x, 1.18), var(--sq-y, 0.82)); }
+  62% { transform: scale(var(--st-x, 0.93), var(--st-y, 1.1)); }
+  100% { transform: scale(1, 1); }
+}
+.mob.hit.hit-flash .mob-body { animation: mobHitFlash .14s cubic-bezier(.2,.8,.3,1); }
+@keyframes mobHitFlash {
+  0% { transform: scale(1, 1); filter: brightness(3) saturate(0) drop-shadow(1px 2px 0 #000); }
+  30% { transform: scale(var(--sq-x, 1.18), var(--sq-y, 0.82)); filter: brightness(3) saturate(0) drop-shadow(1px 2px 0 #000); }
+  62% { transform: scale(var(--st-x, 0.93), var(--st-y, 1.1)); filter: drop-shadow(1px 2px 0 #000); }
+  100% { transform: scale(1, 1); filter: drop-shadow(1px 2px 0 #000); }
+}
+body.reduce-motion .mob.hit.hit-flash .mob-body { animation: mobWhiteFlashRM .1s linear; }
+@keyframes mobWhiteFlashRM {
+  0%, 55% { filter: brightness(3) saturate(0) drop-shadow(1px 2px 0 #000); }
+  100% { filter: drop-shadow(1px 2px 0 #000); }
+}
+.fig-mob.flash { animation: none; } /* old red/sepia flash retired */
+.mob-body { transition: translate 90ms cubic-bezier(.2,.8,.3,1); }
+body.reduce-motion .mob.hit:not(.hit-flash) .mob-body { animation: none; }
+body.reduce-motion .mob-body { transition: none; }
+
+/* ===================== feel2 — monster count + wander ===================== */
+.mob.wandering:not(.hit):not(.dying) .mob-body { animation: mobWalkBob 0.4s ease-in-out infinite; }
+.mob.wandering .fig-mob { animation: none; }
+body.reduce-motion .mob.wandering:not(.hit):not(.dying) .mob-body { animation: none; }
+
+/* ===== xp1: Slayer XP bar (design/slayer-xp.md §6) ===== */
+.hud-pill-sl .hud-xp-fill { transition: width 0.28s ease-out; }
+.hud-pill-sl.sl-levelup { animation: slLevelGlow 0.6s ease-out; }
+.hud-pill-sl.sl-levelup .hud-sl-lab { color: #fff6a0; }
+@keyframes slLevelGlow {
+  0% { box-shadow: 0 0 0 0 rgba(255, 230, 90, 0); filter: brightness(1); }
+  30% { box-shadow: 0 0 10px 3px rgba(255, 230, 90, 0.85); filter: brightness(1.35); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 230, 90, 0); filter: brightness(1); }
+}
+.hud-pill-sl.xp-full .hud-sl-lab { color: #ffd84a; }
+.hud-pill-sl.xp-full .hud-xp-fill {
+  background: repeating-linear-gradient(135deg, #c99a1c 0 5px, #ffd84a 5px 10px);
+  background-size: 28px 28px;
+  box-shadow: 0 0 5px rgba(255, 200, 60, 0.5);
+  animation: xpFullStripe 2.4s linear infinite;
+}
+@keyframes xpFullStripe { from { background-position: 0 0; } to { background-position: 28px 0; } }
+.hud-pill-sl.xp-max .hud-sl-lab { color: #ffe9a8; }
+.hud-pill-sl.xp-max .hud-xp-fill {
+  background: linear-gradient(90deg, #b8860b, #ffe066, #fff5c0);
+  box-shadow: 0 0 6px rgba(255, 220, 100, 0.6);
+}
+body.reduce-motion .hud-pill-sl.sl-levelup,
+body.reduce-motion .hud-pill-sl.xp-full .hud-xp-fill { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .hud-pill-sl.sl-levelup, .hud-pill-sl.xp-full .hud-xp-fill { animation: none; }
+}
+.xp-full-note { color: #ffd84a; margin: 4px 0 0; }
+.claim-xp.capped { color: #ffd84a; }
+.claim-list li.claim-xp { flex-wrap: wrap; row-gap: 2px; }
+.claim-list li.claim-xp .claim-xp-note { flex-basis: 100%; }
+
+/* xp1 (#5 retest): the target-name chip is a hold surface on touch (no scroll/zoom gesture) */
+.target-switcher .ts-chip {
+  pointer-events: auto !important;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  cursor: crosshair;
+}
+
+/* xp1 (retest a): the sheet bar sits above the arena's hold layer and is a full-size tap target */
+.hunt-sheet { position: relative; z-index: 20; }
+.hunt-sheet-toggle { min-height: 40px; }

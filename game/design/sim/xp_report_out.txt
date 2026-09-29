@@ -1,0 +1,137 @@
+== RETUNE SEP 28: faster SL4 (pre = xp1 live code, post = proposed)
+Crawling Hand at start: HP 105 -> 60, kill time 15.7s -> 9.3s (bolt DPS 9.09, hit 0.775)
+toNext SL1-4 pre [150, 250, 410, 690] post [100, 120, 180, 690]
+SL | pre min | post min | post source
+SL 2 |   0.50 |   0.30 | XP (kills)                                     | on target
+SL 3 |   1.38 |   0.77 | XP (kills)                                     | on target
+SL 4 |   3.46 |   1.14 | XP (first)                                     | on target
+SL 5 |   5.00 |   3.81 | Tier Test Crawling Hand Champion (TTK 58s)     | on target
+SL 6 |  11.29 |   7.70 | XP (kills)                                     | early by 0.3 min
+SL 7 |  15.06 |  11.00 | XP (first)                                     | early by 1.0 min
+SL 8 |  25.27 |  14.67 | Tier Test Ashfang Alpha (TTK 51s)              | early by 0.3 min
+SL 9 |  32.12 |  26.66 | XP (kills)                                     | on target
+SL10 |  35.42 |  32.64 | Tier Test Nightweave (TTK 36s)                 | early by 7.4 min
+SL11 |  48.83 |  43.41 | XP (kills)                                     | -
+SL12 |  59.78 |  58.50 | XP (first)                                     | -
+SL13 |  81.08 |  79.32 | XP (kills)                                     | on target
+SL20 | 410.46 | 408.79 | XP (kills)                                     | on target
+fights pre  [('Crawling Hand Champion', 3.46, 54), ('Ashfang Alpha', 15.06, 49), ('Nightweave', 35.42, 35)]
+fights post [('Crawling Hand Champion', 3.81, 58), ('Ashfang Alpha', 14.67, 51), ('Nightweave', 32.64, 36)]
+first early events PRE:
+    15.7s  SL1  buy   gear_iron -> lv1 (55 gold)
+    29.9s  SL1  first first clear Crawling Hand (+80 XP)
+    29.9s  SL2  SL    SL2: XP (first)
+    33.9s  SL2  buy   idle_power -> lv1 (25 gold)
+    82.7s  SL2  first first clear Cave Crawler (+132 XP)
+    82.7s  SL3  SL    SL3: XP (first)
+    86.7s  SL3  buy   unlock_specials -> lv1 (50 gold)
+   148.3s  SL3  meter Crawling Hand Champion meter full
+   207.9s  SL4  SL    SL4: Tier Test Crawling Hand Champion (TTK 54s)
+   207.9s  SL4  buy   hunter_briar -> lv1 (140 gold)
+   207.9s  SL4  buy   hunter_swift_step -> lv1 (160 gold)
+   207.9s  SL4  buy   auto_accept -> lv1 (150 points)
+   232.3s  SL4  first first clear Banshee (+288 XP)
+first early events POST:
+     9.3s  SL1  buy   gear_iron -> lv1 (55 gold)
+    17.8s  SL2  SL    SL2: XP (kills)
+    17.8s  SL2  first first clear Crawling Hand (+80 XP)
+    21.8s  SL2  buy   idle_power -> lv1 (25 gold)
+    46.2s  SL3  SL    SL3: XP (kills)
+    46.2s  SL3  buy   unlock_specials -> lv1 (50 gold)
+    68.6s  SL3  first first clear Cave Crawler (+132 XP)
+    68.6s  SL4  SL    SL4: XP (first)
+   117.3s  SL4  buy   hunter_briar -> lv1 (140 gold)
+   160.4s  SL4  meter Crawling Hand Champion meter full
+   160.4s  SL4  first first clear Banshee (+288 XP)
+   164.4s  SL4  buy   auto_accept -> lv1 (150 points)
+   228.7s  SL5  SL    SL5: Tier Test Crawling Hand Champion (TTK 58s)
+   228.7s  SL5  buy   hunter_swift_step -> lv1 (160 gold)
+   228.7s  SL5  buy   armor_legs -> lv1 (40 gold)
+post + intro gold top-up (200 after Hand clear): {2: 0.3, 3: 0.74, 4: 1.08, 5: 5.32, 6: 10.5} Warrior bought [69]
+DPS x0.7: pre {2: 0.7, 3: 1.87, 4: 4.76, 5: 6.6, 6: 14.17, 7: 18.96, 8: 31.83, 9: 40.57, 10: 44.84} | post {2: 0.41, 3: 1.05, 4: 1.58, 5: 5.13, 6: 9.8, 7: 13.82, 8: 18.5, 9: 33.11, 10: 40.23}
+DPS x1.5: pre {2: 0.34, 3: 0.96, 4: 2.42, 5: 3.65, 6: 8.63, 7: 11.47, 8: 19.18, 9: 24.54, 10: 27.15} | post {2: 0.21, 3: 0.55, 4: 0.8, 5: 2.75, 6: 5.82, 7: 8.42, 8: 11.18, 9: 20.26, 10: 25.14}
+optional hold-the-bands variant (also SL5->6 1150 -> 1400): {2: 0.3, 3: 0.77, 4: 1.14, 5: 3.81, 6: 9.02, 7: 12.19, 8: 14.8, 9: 27.16, 10: 32.77, 11: 44.05, 12: 58.63, 13: 79.56, 14: 106.25}
+dead zones post [(82, 13), (106, 13), (119, 18), (143, 17), (160, 14), (173, 44), (218, 52), (270, 64), (334, 75)] pre [(82, 13), (108, 14), (122, 17), (143, 17), (160, 15), (175, 44), (219, 52), (271, 64), (335, 75)]
+
+== per-kill XP / first clear / early task XP
+Crawling Hand  xp/kill  10  full task     80  cut task (x5)    100  first-clear chunk     80
+Cave Crawler   xp/kill  11  full task    132  cut task (x5)    110  first-clear chunk    132
+Banshee        xp/kill  12  full task    288  cut task (x5)    300  first-clear chunk    288
+Ashfang Pup    xp/kill  17  full task   1360  cut task (x5)      -  first-clear chunk   1360
+Ashfang Wolf   xp/kill  19  full task   2280  cut task (x5)      -  first-clear chunk   2280
+Dire Ashfang   xp/kill  20  full task   3000  cut task (x5)      -  first-clear chunk   3000
+Silkling       xp/kill  29  full task   4060  cut task (x5)      -  first-clear chunk   4060
+Webfen Widow   xp/kill  32  full task   5760  cut task (x5)      -  first-clear chunk   5760
+Brood Matron   xp/kill  36  full task   7920  cut task (x5)      -  first-clear chunk   7920
+
+== curve
+SL1->2:     100   cumulative to SL2: 100
+SL2->3:     120   cumulative to SL3: 220
+SL3->4:     180   cumulative to SL4: 400
+SL4->5:     690   cumulative to SL5: 1090
+SL5->6:    1150   cumulative to SL6: 2240
+SL6->7:    1900   cumulative to SL7: 4140
+SL7->8:    3150   cumulative to SL8: 7290
+SL8->9:    5200   cumulative to SL9: 12490
+SL9->10:    8650   cumulative to SL10: 21140
+SL10->11:   14500   cumulative to SL11: 35640
+SL11->12:   24000   cumulative to SL12: 59640
+SL12->13:   39500   cumulative to SL13: 99140
+SL13->14:   65500   cumulative to SL14: 164640
+SL14->15:   79000   cumulative to SL15: 243640
+SL15->16:   94500   cumulative to SL16: 338140
+SL16->17:  115000   cumulative to SL17: 453140
+SL17->18:  135000   cumulative to SL18: 588140
+SL18->19:  165000   cumulative to SL19: 753140
+SL19->20:  195000   cumulative to SL20: 948140
+
+== timeline (1.0x)
+SL 2    0.3  XP (kills)                                   | XP (Crawling Hand)                     | on target
+SL 3    0.8  XP (kills)                                   | XP (Cave Crawler)                      | on target
+SL 4    1.1  XP (first)                                   | first clear Cave Crawler               | on target
+SL 5    3.8  Tier Test Crawling Hand Champion (TTK 58s)   | Slayer points (meter 120)              | on target
+SL 6    7.7  XP (kills)                                   | XP (Ashfang Pup)                       | early by 0.3 min
+SL 7   11.0  XP (first)                                   | first clear Ashfang Pup                | early by 1.0 min
+SL 8   14.7  Tier Test Ashfang Alpha (TTK 51s)            | Slayer points (meter 280)              | early by 0.3 min
+SL 9   26.7  XP (kills)                                   | XP (Silkling)                          | on target
+SL10   32.6  Tier Test Nightweave (TTK 36s)               | Slayer points (meter 600)              | early by 7.4 min
+SL11   43.4  XP (kills)                                   | XP (Webfen Widow)                      | -
+SL12   58.5  XP (first)                                   | first clear Brood Matron               | -
+SL13   79.3  XP (kills)                                   | XP (Brood Matron)                      | on target
+SL14  106.0  XP (kills)                                   | XP (Brood Matron)                      | -
+SL15  136.8  XP (kills)                                   | XP (Brood Matron)                      | -
+SL16  173.3  XP (kills)                                   | XP (Brood Matron)                      | -
+SL17  217.8  XP (kills)                                   | XP (Brood Matron)                      | -
+SL18  269.9  XP (kills)                                   | XP (Brood Matron)                      | -
+SL19  333.6  XP (kills)                                   | XP (Brood Matron)                      | -
+SL20  408.8  XP (kills)                                   | XP (Brood Matron)                      | on target
+fights [('Crawling Hand Champion', 3.8, 58), ('Ashfang Alpha', 14.7, 51), ('Nightweave', 32.6, 36)]
+xp src {'kills': 910798, 'first': 24880, 'lost_to_cap': 0} minutes at cap 0.0
+dead zones [(82, 13), (106, 13), (119, 18), (143, 17), (160, 14), (173, 44), (218, 52), (270, 64), (334, 75)]
+buy firsts [(0.2, 'gear_iron'), (0.4, 'idle_power'), (0.8, 'unlock_specials'), (2.0, 'hunter_briar'), (2.7, 'auto_accept'), (3.8, 'hunter_swift_step'), (3.8, 'armor_legs'), (10.6, 'gear_steel'), (11.1, 'gear_mithril'), (14.7, 'unlock_crits'), (14.7, 'armor_body'), (14.7, 'bolt_bounce'), (17.0, 'bolt_pierce'), (17.6, 'loot_luck'), (18.1, 'tempered_edge'), (23.3, 'briar_blade'), (25.6, 'hunter_damage'), (25.8, 'gear_adamant'), (26.7, 'armor_helm'), (28.1, 'hunter_quill'), (30.7, 'quill_multishot'), (46.6, 'hunter_atk_speed'), (47.1, 'hunter_power'), (47.6, 'quill_focus'), (51.3, 'quill_cadence'), (51.4, 'gear_rune'), (60.1, 'briar_strength'), (66.8, 'gear_dragon'), (76.3, 'hunter_pace'), (76.3, 'hunter_charge')]
+xp/min samples [(1, 4, 147), (3, 5, 178), (5, 5, 180), (10, 6, 199), (20, 8, 178), (30, 9, 692), (45, 11, 509), (60, 12, 1346), (90, 13, 2547), (120, 14, 2619), (180, 16, 2648), (240, 17, 2648), (300, 18, 2648)]
+
+== sensitivity (weapon DPS x, per benchmarks-not-timers.md)
+0.7 {2: 0.4, 3: 1.1, 4: 1.6, 5: 5.1, 6: 9.8, 7: 13.8, 8: 18.5, 9: 33.1, 10: 40.2, 11: 51.6, 12: 67.0, 13: 87.8, 14: 114.5, 15: 145.3, 16: 181.8, 17: 226.2, 18: 278.3, 19: 342.0, 20: 417.3} cap min 0.0 fights [('Crawling H', 5.1, 83), ('Ashfang Al', 18.5, 73), ('Nightweave', 40.2, 62)]
+1.5 {2: 0.2, 3: 0.5, 4: 0.8, 5: 2.7, 6: 5.8, 7: 8.4, 8: 11.2, 9: 20.3, 10: 25.1, 11: 33.9, 12: 46.8, 13: 66.9, 14: 93.5, 15: 124.3, 16: 160.8, 17: 205.2, 18: 257.3, 19: 321.0, 20: 396.2} cap min 0.0 fights [('Crawling H', 2.7, 39), ('Ashfang Al', 11.2, 34), ('Nightweave', 25.1, 22)]
+
+== no x5 XP in early window
+{2: 0.3, 3: 1.2, 4: 3.3, 5: 5.6, 6: 11.3}
+
+== no Fix C (quota snaps back when Warrior is hired mid-task)
+{2: 0.3, 3: 0.8, 4: 1.1, 5: 4.0, 6: 10.2, 7: 14.6}
+
+== alt: first clears as guaranteed level-ups (no chunk)
+{2: 0.3, 3: 0.4, 4: 1.2, 5: 2.9, 6: 4.1, 7: 11.0, 8: 14.6, 9: 25.7, 10: 31.9, 11: 32.6, 12: 41.6, 13: 51.3, 14: 58.3, 15: 87.8, 16: 125.3, 17: 169.8, 18: 221.9, 19: 285.6, 20: 360.9}
+
+== offline: one 360-min absence at 50% XP (code killRatePerMin + food), at each SL reached
+at SL3 (1 min): Cave Crawler   kills     2 food-bound False raw XP     55 (= 0 active min, 0.31 of level) -> after 1-level cap     55 -> SL3 capped-by-test False
+at SL4 (1 min): Banshee        kills     5 food-bound True raw XP    150 (= 1 active min, 0.22 of level) -> after 1-level cap    150 -> SL4 capped-by-test False
+at SL5 (4 min): Ashfang Pup    kills   887 food-bound True raw XP   7537 (= 42 active min, 6.55 of level) -> after 1-level cap   1150 -> SL6 capped-by-test False
+at SL6 (8 min): Ashfang Pup    kills   887 food-bound True raw XP   7537 (= 38 active min, 3.97 of level) -> after 1-level cap   1900 -> SL7 capped-by-test False
+at SL8 (15 min): Ashfang Wolf   kills   760 food-bound True raw XP   7220 (= 48 active min, 1.39 of level) -> after 1-level cap   5200 -> SL9 capped-by-test False
+at SL9 (27 min): Silkling       kills   665 food-bound True raw XP   9642 (= 16 active min, 1.11 of level) -> after 1-level cap   8650 -> SL10 capped-by-test False
+at SL12 (59 min): Silkling       kills   665 food-bound True raw XP   9642 (= 8 active min, 0.24 of level) -> after 1-level cap   9642 -> SL12 capped-by-test False
+at SL13 (79 min): Brood Matron   kills   532 food-bound True raw XP   9576 (= 4 active min, 0.15 of level) -> after 1-level cap   9576 -> SL13 capped-by-test False
+at SL16 (173 min): Brood Matron   kills   532 food-bound True raw XP   9576 (= 4 active min, 0.08 of level) -> after 1-level cap   9576 -> SL16 capped-by-test False
+at SL19 (334 min): Brood Matron   kills   532 food-bound True raw XP   9576 (= 4 active min, 0.05 of level) -> after 1-level cap   9576 -> SL19 capped-by-test False

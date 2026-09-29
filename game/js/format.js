@@ -139,4 +139,97 @@ window.CB_FMT = {
     }
     return g;
   },
+
+  // ===== feel1: gold HUD controller =====
+  // Kill gold is credited to state at once (economy unchanged) but the HUD holds it
+  // back until the coin lands, then counts up (ease-out) and pops.
+  _gh: { shown: null, from: 0, to: 0, t0: 0, dur: 0, raf: 0, total: 0, pending: [] },
+
+  /** Gold still "in flight" (credited but not yet shown). */
+  pendingGold(now) {
+    const gh = this._gh;
+    now = now || performance.now();
+    gh.pending = gh.pending.filter(p => p.at > now);
+    let s = 0;
+    gh.pending.forEach(p => { s += p.amt; });
+    return s;
+  },
+
+  /** Hold `amt` back from the HUD until `atMs` (performance.now clock). Self-expiring. */
+  holdGold(amt, atMs) {
+    if (!(amt > 0)) return null;
+    const entry = { amt: amt, at: atMs };
+    this._gh.pending.push(entry);
+    return entry;
+  },
+
+  /** Main entry: the real total. Shown value = total − in-flight coins. */
+  setGoldHud(total, opts) {
+    opts = opts || {};
+    const gh = this._gh;
+    gh.total = total;
+    const target = Math.max(0, total - this.pendingGold());
+    if (gh.shown === null || opts.snap) {
+      gh.shown = gh.from = gh.to = target;
+      if (gh.raf) cancelAnimationFrame(gh.raf);
+      gh.raf = 0;
+      this.applyGoldHud(target);
+      return;
+    }
+    if (Math.abs(target - gh.to) < 1e-6) return;
+    if (target < gh.shown) {
+      // Spending: snap down instantly (purchases must feel immediate)
+      gh.shown = gh.from = gh.to = target;
+      if (gh.raf) cancelAnimationFrame(gh.raf);
+      gh.raf = 0;
+      this.applyGoldHud(target);
+      return;
+    }
+    // Count up from what is on screen now
+    gh.from = gh.shown;
+    gh.to = target;
+    gh.t0 = performance.now();
+    gh.dur = opts.dur || 420;
+    this._popGold();
+    if (!gh.raf) {
+      const self = this;
+      const step = (now) => {
+        const p = Math.min(1, (now - gh.t0) / Math.max(1, gh.dur));
+        const e = 1 - Math.pow(1 - p, 3);
+        gh.shown = gh.from + (gh.to - gh.from) * e;
+        const prevTxt = gh.lastTxt;
+        const g = self.applyGoldHud(p >= 1 ? gh.to : gh.shown);
+        gh.lastTxt = g && g.text;
+        // Coin-landing count-ups tick (CB_AUDIO throttles to one per 80ms); passive income stays silent
+        if (gh.tick && prevTxt != null && gh.lastTxt !== prevTxt && window.CB_AUDIO) {
+          try { window.CB_AUDIO.play('gold_countup_tick'); } catch (e) { /* soft */ }
+        }
+        if (p < 1) gh.raf = requestAnimationFrame(step);
+        else { gh.shown = gh.to; gh.raf = 0; gh.tick = false; }
+      };
+      gh.raf = requestAnimationFrame(step);
+    }
+  },
+
+  /** Call when a coin reaches the HUD: releases its held gold (already expired by time). */
+  landGold(entry) {
+    if (entry) this._gh.pending = this._gh.pending.filter(p => p !== entry);
+    this._gh.tick = true;
+    this.setGoldHud(this._gh.total);
+    if (!this._gh.raf) this._gh.tick = false;
+  },
+
+  _popGold() {
+    const el = typeof document !== 'undefined' ? document.getElementById('res-gold') : null;
+    if (!el) return;
+    el.classList.remove('flash-gold');
+    void el.offsetWidth;
+    el.classList.add('flash-gold');
+    const ico = document.getElementById('res-gold-ico');
+    if (ico) {
+      ico.classList.remove('gold-ico-pop');
+      void ico.offsetWidth;
+      ico.classList.add('gold-ico-pop');
+    }
+  },
 };

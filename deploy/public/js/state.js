@@ -37,6 +37,8 @@
       lastTickAt: Date.now(),
       playMs: 0,
       slayerLevel: 1,
+      slayerXp: 0,
+      cutQuotaTasks: {},
       prayerPoints: 0,
       prayers: {},
       currentContractId: null,
@@ -191,7 +193,10 @@
         s.intro.introDone = true;
         s.intro.completed = true;
       }
-      if (!s.introDone && window.CB_INTRO && window.CB_INTRO.pastTutorialHeuristic) {
+      // xp1b: SL4 now lands ~1 min in, so an intro that is under way (index > 0) is never
+      // auto-skipped on reload by the "looks experienced" heuristic (SL4 / Warrior / Tier Test).
+      const introUnderWay = !!(parsed.intro && (parsed.intro.index | 0) > 0);
+      if (!s.introDone && !introUnderWay && window.CB_INTRO && window.CB_INTRO.pastTutorialHeuristic) {
         try {
           if (window.CB_INTRO.pastTutorialHeuristic(s)) window.CB_INTRO.markIntroDone(s);
         } catch (e) { /* soft */ }
@@ -222,6 +227,13 @@
       if (getUpgradeLevel(s, 'hunter_briar') >= 1 && getSlayerLevel(s) < 4) s.slayerLevel = Math.max(getSlayerLevel(s), 4);
       if (getUpgradeLevel(s, 'unlock_crits') >= 1 && getSlayerLevel(s) < 7) s.slayerLevel = Math.max(getSlayerLevel(s), 7);
       if (getUpgradeLevel(s, 'hunter_quill') >= 1 && getSlayerLevel(s) < 8) s.slayerLevel = Math.max(getSlayerLevel(s), 8);
+      // xp1 (slayer-xp.md §3.7): one-shot Slayer XP migrate. Keep SL exactly; no retroactive XP.
+      if (!parsed._slayerXpMigrated) {
+        if (typeof parsed.slayerXp !== 'number') s.slayerXp = 0;
+        s._slayerXpMigrated = true;
+      }
+      if (!s.cutQuotaTasks || typeof s.cutQuotaTasks !== 'object') s.cutQuotaTasks = {};
+      clampSlayerXp(s);
       if (!s._iom1Migrated) {
         // Documented one-shot: keep gold/points/gear; map early-game gates via SL derivation above.
         // Old Iron cost 180 — leave owned levels; new prices only affect future buys.
@@ -325,8 +337,124 @@
   function gainSlayerLevel(state, amount) {
     const add = Math.max(0, amount | 0);
     if (!add) return getSlayerLevel(state);
-    state.slayerLevel = getSlayerLevel(state) + add;
+    state.slayerLevel = Math.min(slayerMaxLevel(), getSlayerLevel(state) + add);
     return state.slayerLevel;
+  }
+
+  /* ===== xp1: Slayer XP (design/slayer-xp.md) ===== */
+  function slayerXpCfg() {
+    return D().SLAYER_XP || { toNext: [], maxLevel: 20, capFrac: 0.99, offlineMult: 0.5, offlineMaxLevels: 1 };
+  }
+  function slayerMaxLevel() { return slayerXpCfg().maxLevel || 20; }
+  /** XP needed to go from `sl` to sl+1; 0 at max level. */
+  function xpToNext(sl) {
+    const cfg = slayerXpCfg();
+    const L = Math.max(1, sl | 0);
+    if (L >= (cfg.maxLevel || 20)) return 0;
+    const t = cfg.toNext || [];
+    return t[L - 1] != null ? t[L - 1] : (t[t.length - 1] || 0);
+  }
+  function slayerXpPerKill(contract) {
+    if (!contract) return 0;
+    if (typeof contract.slayerXp === 'number') return contract.slayerXp;
+    const area = D().areas.find(a => a.id === contract.areaId);
+    return Math.round(10 * ((area && area.mult) || 1) * (contract.mult || 1));
+  }
+  /** The unwon Tier Test whose gateLevel is SL+1 (caps XP at 99%), or null. */
+  function slayerGatePrey(state) {
+    const sl = getSlayerLevel(state);
+    return D().markedPrey.find(p => !p.hidden && p.gateLevel === sl + 1
+      && !(state.prey && state.prey[p.id] && state.prey[p.id].finished)) || null;
+  }
+  /** Max XP storable at the current SL (floor(0.99 × need) while a gate is unwon), else null. */
+  function slayerXpCap(state) {
+    const need = xpToNext(getSlayerLevel(state));
+    if (!need) return 0;
+    if (slayerGatePrey(state)) return Math.floor((slayerXpCfg().capFrac || 0.99) * need);
+    return null;
+  }
+  function slayerXpFull(state) {
+    const cap = slayerXpCap(state);
+    return cap != null && cap > 0 && (state.slayerXp || 0) >= cap;
+  }
+  function clampSlayerXp(state) {
+    let xp = Number(state.slayerXp);
+    if (!isFinite(xp) || xp < 0) xp = 0;
+    const need = xpToNext(getSlayerLevel(state));
+    if (!need) xp = 0;
+    else {
+      xp = Math.min(xp, need - 1);
+      const cap = slayerXpCap(state);
+      if (cap != null) xp = Math.min(xp, cap);
+    }
+    state.slayerXp = xp;
+    return xp;
+  }
+  /**
+   * Add Slayer XP; loops level-ups, respects the Tier Test cap (excess dropped) and SL20.
+   * Returns { gained, levels: [newSL..], capped }.
+   */
+  function grantSlayerXp(state, amount, src) {
+    const res = { gained: 0, levels: [], capped: false, src: src || 'kill' };
+    let add = Number(amount) || 0;
+    if (add <= 0) return res;
+    if (typeof state.slayerXp !== 'number' || !isFinite(state.slayerXp)) state.slayerXp = 0;
+    let guard = 0;
+    while (add > 0 && guard++ < 64) {
+      const sl = getSlayerLevel(state);
+      const need = xpToNext(sl);
+      if (!need) { state.slayerXp = 0; break; } // MAX
+      const cap = slayerXpCap(state);
+      const room = (cap != null ? cap : need) - state.slayerXp;
+      if (cap != null && add >= room) {
+        // Tier Test gate: fill to 99%, drop the rest (not banked)
+        const put = Math.max(0, room);
+        state.slayerXp += put;
+        res.gained += put;
+        res.capped = true;
+        add = 0;
+        break;
+      }
+      if (add >= room) {
+        res.gained += room;
+        add -= room;
+        state.slayerXp = 0;
+        state.slayerLevel = sl + 1;
+        res.levels.push(sl + 1);
+        continue;
+      }
+      state.slayerXp += add;
+      res.gained += add;
+      add = 0;
+    }
+    if (!res.capped && slayerXpFull(state)) res.capped = true;
+    return res;
+  }
+  /** Fold one grant result into a gains object (gains.slayerXp / slayerLevels / slayerXpCapped). */
+  function noteXpGains(gains, r) {
+    if (!gains || !r) return;
+    gains.slayerXp = (gains.slayerXp || 0) + r.gained;
+    if (r.levels.length) gains.slayerLevels = (gains.slayerLevels || []).concat(r.levels);
+    if (r.capped) gains.slayerXpCapped = true;
+  }
+  /** Per-kill XP: slayerXp × kills × early ×5; idle/offline 50% and limited by gains._xpBudget. */
+  function grantKillXp(state, contract, kills, gains, src) {
+    let amt = slayerXpPerKill(contract) * kills * earlyRewardMult(state);
+    if (src === 'idle') amt *= (slayerXpCfg().offlineMult != null ? slayerXpCfg().offlineMult : 0.5);
+    if (gains && gains._xpBudget != null) {
+      amt = Math.min(amt, Math.max(0, gains._xpBudget - (gains._xpSpent || 0)));
+      gains._xpSpent = (gains._xpSpent || 0) + amt;
+    }
+    if (amt <= 0) return null;
+    const r = grantSlayerXp(state, amt, src || 'kill');
+    noteXpGains(gains, r);
+    return r;
+  }
+  /** Fix C: remember a task that got kills inside the early window (keeps its cut quota). */
+  function markCutQuotaTask(state, contract) {
+    if (!contract || !inEarlyWindow(state)) return;
+    if (!state.cutQuotaTasks || typeof state.cutQuotaTasks !== 'object') state.cutQuotaTasks = {};
+    state.cutQuotaTasks[contract.id] = true;
   }
 
   function slayerGateOk(state, u) {
@@ -632,6 +760,22 @@
         if (areaOpen && i === 0) b.unlocked = true;
       });
     });
+  }
+
+  // feel2 (design/monster-count.md): monsters on screen = 1 + hired helpers + 1 if any multi-hit bolt,
+  // capped at 3 (World 1 WAVE_SIZE). Cannon is single-target and doesn't count; timed chest buffs don't either.
+  const MOB_COUNT_CAP = 3;
+  const MOB_COUNT_HELPERS = ['briar', 'quill', 'moss', 'ember'];
+  const MOB_COUNT_MULTI = ['bolt_pierce', 'bolt_bounce', 'quill_multishot'];
+  function mobCountParts(state) {
+    const hunters = (state && state.hunters) || {};
+    const helpers = MOB_COUNT_HELPERS.filter(id => hunters[id] && hunters[id].unlocked);
+    const multi = MOB_COUNT_MULTI.some(id => ((state && state.upgrades && state.upgrades[id]) || 0) >= 1);
+    return { helpers, multi };
+  }
+  function mobCountFor(state) {
+    const p = mobCountParts(state);
+    return Math.max(1, Math.min(MOB_COUNT_CAP, 1 + p.helpers.length + (p.multi ? 1 : 0)));
   }
 
   function isContractUnlocked(state, contractId) {
@@ -1249,7 +1393,9 @@
 
   function effectiveQuota(state, contract) {
     const b = getBonuses(state);
-    if (inEarlyWindow(state)) {
+    // Fix C (w1 audit): a task that got kills inside the window keeps its cut quota after the Warrior is hired
+    const keptCut = !!(state.cutQuotaTasks && contract && state.cutQuotaTasks[contract.id]);
+    if (inEarlyWindow(state) || keptCut) {
       return Math.max(2, Math.round(contract.killQuota * b.quotaMult * EARLY_QUOTA_MULT));
     }
     return Math.max(5, Math.floor(contract.killQuota * b.quotaMult));
@@ -1276,7 +1422,13 @@
       elapsedMs,
       effectiveMinutes,
       capped: elapsedMinutes > b.offlineCapMin,
+      slayerXp: 0,
     };
+    // xp1: at most one Slayer level per applyIdle call (offline claim / idle tick)
+    const xpNeedAtStart = xpToNext(getSlayerLevel(state));
+    const cfgXp = slayerXpCfg();
+    gains._xpBudget = xpNeedAtStart * Math.max(1, cfgXp.offlineMaxLevels || 1);
+    gains.slayerLevelAtStart = getSlayerLevel(state);
 
     if (effectiveMinutes <= 0) {
       // Still charge chests for tiny windows? skip
@@ -1353,6 +1505,7 @@
         break; // wait for a whole kill
       }
       state._killBank -= kills;
+      markCutQuotaTask(state, contract);
 
       const tUsed = kills / rate;
       const foodUse = kills * foodPerKill;
@@ -1362,16 +1515,20 @@
       if (!state.contractProgressById) state.contractProgressById = {};
       if (state.currentContractId) state.contractProgressById[state.currentContractId] = state.contractProgress;
       gains.kills += kills;
-      applyKillRewards(state, contract, kills, gains, b);
+      applyKillRewards(state, contract, kills, gains, b, 'idle');
       minutesLeft -= tUsed;
       checkContractFinish(state, contract, gains, b);
     }
 
     state.totalKills += Math.floor(gains.kills);
+    if (gains.slayerXpCapped) gains.slayerGatePreyName = (slayerGatePrey(state) || {}).name || null;
+    delete gains._xpBudget;
+    delete gains._xpSpent;
     return gains;
   }
 
-  function applyKillRewards(state, contract, kills, gains, b) {
+  /** src: 'arena' (100% Slayer XP) or 'idle' (applyIdle: 50%, one level per call). */
+  function applyKillRewards(state, contract, kills, gains, b, src) {
     // Gold (mastery bounty %)
     const best = ensureBestiaryEntry(state, contract.id);
     const avgGold = ((contract.goldMin + contract.goldMax) / 2) * b.lootLuck * masteryGoldMult(best.mastery);
@@ -1400,6 +1557,9 @@
       if (!state._pendingSigToasts) state._pendingSigToasts = [];
       state._pendingSigToasts.push.apply(state._pendingSigToasts, sig.toasts);
     }
+
+    // Slayer XP (xp1)
+    grantKillXp(state, contract, kills, gains, src === 'idle' ? 'idle' : 'arena');
 
     // Bestiary
     const be = ensureBestiaryEntry(state, contract.id);
@@ -1446,6 +1606,7 @@
       state.food = Math.max(0, state.food - use);
       gains.foodConsumed += use;
     }
+    markCutQuotaTask(state, contract);
     state.contractProgress = (state.contractProgress || 0) + kills;
     if (!state.contractProgressById) state.contractProgressById = {};
     if (state.currentContractId) state.contractProgressById[state.currentContractId] = state.contractProgress;
@@ -1469,6 +1630,7 @@
         if (!state._pendingSigToasts) state._pendingSigToasts = [];
         state._pendingSigToasts.push.apply(state._pendingSigToasts, sig.toasts);
       }
+      grantKillXp(state, contract, kills, gains, 'arena');
       best.kills += kills;
       maybeUnlockFromProgress(state, contract);
       const ptsForMeter = contract.pointsPerKill * kills * b.pointsMult * earlyM;
@@ -1478,7 +1640,7 @@
         if (prey) gains.chips[prey.id] = (gains.chips[prey.id] || 0) + meterAdd;
       }
     } else {
-      applyKillRewards(state, contract, kills, gains, b);
+      applyKillRewards(state, contract, kills, gains, b, 'arena');
     }
     checkContractFinish(state, contract, gains, b);
     return gains;
@@ -1505,13 +1667,22 @@
     best.completions += 1;
     state.totalContracts += 1;
     gains.contractsFinished += 1;
-    // Phase 1: first clear of each task raises Slayer level (repeats do not)
+    // xp1: first clear of each task gives a Slayer XP chunk (not ×5; replaces the old +1 SL)
+    let firstClearXp = 0;
     if (best.completions === 1) {
       const prevSL = getSlayerLevel(state);
-      gainSlayerLevel(state, 1);
-      gains.slayerLevelGained = getSlayerLevel(state) - prevSL;
+      let chunk = contract.firstClearXp != null ? contract.firstClearXp : contract.killQuota * slayerXpPerKill(contract);
+      if (gains._xpBudget != null) {
+        chunk = Math.min(chunk, Math.max(0, gains._xpBudget - (gains._xpSpent || 0)));
+        gains._xpSpent = (gains._xpSpent || 0) + chunk;
+      }
+      const r = grantSlayerXp(state, chunk, 'first');
+      noteXpGains(gains, r);
+      firstClearXp = Math.round(r.gained);
+      gains.slayerLevelGained = (gains.slayerLevelGained || 0) + (getSlayerLevel(state) - prevSL);
       gains.slayerLevel = getSlayerLevel(state);
     }
+    if (state.cutQuotaTasks) delete state.cutQuotaTasks[contract.id]; // Fix C: next run uses today's quota
     const autoM = maybeAutoMastery(state, contract.id);
     const unlockRes = maybeUnlockFromProgress(state, contract);
     const chestDrop = rollBountyChest(state, contract);
@@ -1526,6 +1697,7 @@
       unlocked: (unlockRes.unlocked || []).map(c => c.name),
       signatureMat: matMeta ? { id: matId, name: matMeta.name, emoji: matMeta.emoji, total: matCount } : null,
       perkText: activeMasteryPerkText(state, contract.id),
+      firstClearXp,
     };
     if (!gains.finishRewards) gains.finishRewards = [];
     gains.finishRewards.push({
@@ -1800,7 +1972,13 @@
     state.relics[preyDef.relicId] = true;
     if (preyDef.grantsGear) grantEarnedGear(state, preyDef.grantsGear); // e.g. Mazchna gate → helm_slayer
     clearBossFight(state);
+    // Tier Test win = guaranteed +1 SL; keep XP but clamp so one win never gives two levels (xp1 §3.2)
+    const slBefore = getSlayerLevel(state);
     gainSlayerLevel(state, 1);
+    const slAfter = getSlayerLevel(state);
+    const needAfter = xpToNext(slAfter);
+    state.slayerXp = needAfter ? Math.min(state.slayerXp || 0, needAfter - 1) : 0;
+    clampSlayerXp(state);
     state.prayerPoints = (state.prayerPoints || 0) + 1;
 
     let unlockName = null;
@@ -1819,6 +1997,8 @@
       gold: preyDef.rewardGold,
       points: preyDef.rewardPoints,
       levelCleared: levelLabel(preyDef.areaId),
+      slayerLevel: slAfter,
+      slayerLevelGained: slAfter - slBefore,
     };
   }
 
@@ -1883,6 +2063,9 @@
     Object.keys(D().EARNED_GEAR || {}).forEach((eid) => { if (gPrev.owned[eid]) keepGear.owned[eid] = true; });
     const keepEarlyDone = !!state.earlyWindowDone || getUpgradeLevel(state, 'hunter_briar') >= 1;
     const keepFeatures = Object.assign({ crits: false, specials: false, beamTier: 0 }, state.features || {});
+    // xp1 §3.8: Slayer level and Slayer XP are permanent
+    const keepSlayerLevel = getSlayerLevel(state);
+    const keepSlayerXp = state.slayerXp || 0;
 
     const fresh = defaultState();
     Object.assign(state, fresh);
@@ -1908,6 +2091,9 @@
     state.food = 100;
     state.gear = keepGear;
     state.earlyWindowDone = keepEarlyDone;
+    state.slayerLevel = keepSlayerLevel;
+    state.slayerXp = keepSlayerXp;
+    clampSlayerXp(state);
     ensureGear(state);
     // Slayer cape: first prestige grants it; each later prestige adds a hem trim (max 3)
     const capeRes = grantEarnedGear(state, 'cape_slayer');
@@ -2024,6 +2210,14 @@
     upgradeCost,
     getSlayerLevel,
     gainSlayerLevel,
+    xpToNext,
+    slayerXpCap,
+    slayerXpFull,
+    slayerGatePrey,
+    slayerXpPerKill,
+    grantSlayerXp,
+    clampSlayerXp,
+    slayerMaxLevel,
     slayerGateOk,
     resolveNameKey,
     hunterDisplayName,
@@ -2078,6 +2272,9 @@
     ensureBestiaryEntry,
     seedContractUnlocks,
     isContractUnlocked,
+    mobCountFor,
+    mobCountParts,
+    MOB_COUNT_CAP,
     unlockNextInArea,
     maybeUnlockFromProgress,
     masteryGoldMult,

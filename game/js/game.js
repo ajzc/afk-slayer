@@ -7,6 +7,11 @@
   let pendingClaim = false;
   let lastTickGains = null;
 
+  /** feel1: invalid / locked tap → short ui_denied cue (CB_AUDIO applies the 250ms cooldown + SFX prefs). */
+  function denyTap() {
+    try { if (window.CB_AUDIO && window.CB_AUDIO.denied) window.CB_AUDIO.denied(); } catch (e) { /* soft */ }
+  }
+
   /** One-line purchase feedback for Company combat upgrades (not a blocking modal). */
   function companyUpgradeToast(upgradeId) {
     const u = window.CB_DATA && window.CB_DATA.upgrades.find(x => x.id === upgradeId);
@@ -270,6 +275,10 @@ getTab: () => currentTab,
     }
     // Unlock celebrations + bounty chest toasts from this tick
     if (gains) {
+      // xp1: idle kills (non-Hunt tabs) earn Slayer XP at half rate → level toasts here
+      if (gains.slayerLevels && gains.slayerLevels.length && window.CB_UI.showLevelUps) {
+        window.CB_UI.showLevelUps(gains.slayerLevels);
+      }
       if (window.CB_UI.flushUnlockToasts) window.CB_UI.flushUnlockToasts(state);
       if (gains.bountyChests && gains.bountyChests.length) {
         gains.bountyChests.forEach(() => {
@@ -308,11 +317,9 @@ getTab: () => currentTab,
           try { window.CB_AUDIO.tabSwitch(); } catch (e) { /* soft */ }
         }
         currentTab = id;
+        // feel1: draw only the tab being shown; Hunt uses the soft arena update
+        // (no rebuild, monsters keep HP, Hunters panel keeps its open state)
         window.CB_UI.renderAll(state, currentTab);
-        if (id === 'hunt' && window.CB_ARENA) {
-          window.CB_ARENA.markDirty();
-          window.CB_ARENA.render(state);
-        }
         if (window.CB_AUDIO && window.CB_AUDIO.setHuntActive) {
           try { window.CB_AUDIO.setHuntActive(id === 'hunt'); } catch (e) { /* soft */ }
         }
@@ -326,7 +333,7 @@ getTab: () => currentTab,
         break;
       case 'accept': {
         const r = S.acceptContract(state, id);
-        if (!r.ok) window.CB_UI.toast(r.reason);
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason); }
         else {
           window.CB_UI.toast('Contract accepted');
           persist();
@@ -341,11 +348,15 @@ getTab: () => currentTab,
       case 'buy-upgrade': {
         const wasEarly = !!(S.inEarlyWindow && S.inEarlyWindow(state));
         const r = S.buyUpgrade(state, id);
-        if (!r.ok) window.CB_UI.toast(r.reason || 'Cannot buy');
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason || 'Cannot buy'); }
         else {
           if (id === 'hunter_briar' && wasEarly && S.inEarlyWindow) {
             S.inEarlyWindow(state); // closes the early window for good
-            window.CB_UI.toast("Your Warrior hunts while you're away. Tasks are back to full size.", { ms: 4200 });
+            // Fix C: a task already under way keeps its short count; only new tasks are full size
+            const keeps = !!(state.currentContractId && state.cutQuotaTasks && state.cutQuotaTasks[state.currentContractId]);
+            window.CB_UI.toast(keeps
+              ? "Your Warrior hunts while you're away. This task keeps its short count; new tasks are full size."
+              : "Your Warrior hunts while you're away. Tasks are back to full size.", { ms: 4200 });
           } else {
             window.CB_UI.toast(companyUpgradeToast(id) || 'Upgraded!');
           }
@@ -353,7 +364,7 @@ getTab: () => currentTab,
             try { window.CB_AUDIO.play('upgrade_purchase'); } catch (e) { /* soft */ }
           }
           persist();
-          if (window.CB_ARENA) window.CB_ARENA.markDirty();
+          // feel1: no markDirty — arena key (contract/hunters/area/boss) rebuilds only if needed
           window.CB_UI.renderAll(state, currentTab);
           if (window.CB_INTRO) window.CB_INTRO.refresh(state);
         }
@@ -361,7 +372,7 @@ getTab: () => currentTab,
       }
       case 'buy-armor': {
         const r = S.buyArmor(state, id);
-        if (!r.ok) window.CB_UI.toast(r.reason || 'Cannot buy');
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason || 'Cannot buy'); }
         else {
           // Equip toast only — no sound (brief)
           window.CB_UI.toast('Equipped: ' + r.item.name);
@@ -373,7 +384,7 @@ getTab: () => currentTab,
       }
       case 'equip-armor': {
         const r = S.equipGear(state, id);
-        if (!r.ok) window.CB_UI.toast(r.reason || 'Cannot equip');
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason || 'Cannot equip'); }
         else {
           window.CB_UI.toast('Equipped: ' + r.item.name);
           persist();
@@ -383,7 +394,7 @@ getTab: () => currentTab,
       }
       case 'buy-prayer': {
         const r = S.buyPrayer(state, id);
-        if (!r.ok) window.CB_UI.toast(r.reason || 'Cannot learn');
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason || 'Cannot learn'); }
         else {
           const nm = (r.skill && r.skill.nameKey && window.CB_DATA.nameOf)
             ? window.CB_DATA.nameOf(r.skill.nameKey) : (id || 'Prayer');
@@ -396,7 +407,7 @@ getTab: () => currentTab,
       
       case 'buy-forge-boost': {
         const r = S.buyForgeBoost(state, id);
-        if (!r.ok) window.CB_UI.toast(r.reason || 'Cannot craft');
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason || 'Cannot craft'); }
         else {
           const b = r.boost;
           window.CB_UI.toast((b.emoji || '⚒️') + ' ' + (b.name || 'Forge boost') + ' — 10 min');
@@ -404,14 +415,13 @@ getTab: () => currentTab,
             try { window.CB_AUDIO.play('upgrade_purchase'); } catch (e) { /* soft */ }
           }
           persist();
-          if (window.CB_ARENA) window.CB_ARENA.markDirty();
           window.CB_UI.renderAll(state, currentTab);
         }
         break;
       }
 case 'buy-sigil': {
         const r = S.buySigil(state, id);
-        if (!r.ok) window.CB_UI.toast(r.reason || 'Cannot buy');
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason || 'Cannot buy'); }
         else {
           window.CB_UI.toast('Sigil inscribed');
           persist();
@@ -426,7 +436,7 @@ case 'buy-sigil': {
       }
       case 'fight-boss': {
         const r = S.startBossFight(state, id);
-        if (!r.ok) window.CB_UI.toast(r.reason || 'Cannot fight boss');
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason || 'Cannot fight boss'); }
         else {
           window.CB_UI.toast('Fight boss · ' + (S.bossDisplayName(r.prey) || r.prey.name));
           persist();
@@ -450,7 +460,7 @@ case 'buy-sigil': {
       }
       case 'buy-food': {
         const r = S.buyFood(state);
-        if (!r.ok) window.CB_UI.toast(r.reason || 'Cannot buy food');
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason || 'Cannot buy food'); }
         else {
           persist();
           window.CB_UI.renderTop(state);
@@ -470,7 +480,7 @@ case 'buy-sigil': {
       case 'prestige': {
         if (!confirm('Rewrite the guild charter? Run upgrades reset. Relics & hunters kept.')) break;
         const r = S.doPrestige(state);
-        if (!r.ok) window.CB_UI.toast(r.reason);
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason); }
         else {
           let capeMsg = '';
           if (r.cape && r.cape.ok) capeMsg = r.cape.trimAdded ? ' · Slayer cape trim ' + r.cape.capeTrim : (state.prestigeCount === 1 ? ' · Equipped: Slayer cape' : '');
@@ -507,6 +517,7 @@ case 'buy-sigil': {
           ? window.CB_CHESTS.claimBoost(state)
           : window.CB_CHESTS.claimPermanent(state);
         if (!result.ok) {
+          denyTap();
           window.CB_UI.toast(result.reason || 'Not ready');
           break;
         }
@@ -523,7 +534,7 @@ case 'buy-sigil': {
       }
       case 'improve-mastery': {
         const r = S.improveMastery(state, id);
-        if (!r.ok) window.CB_UI.toast(r.reason || 'Cannot improve');
+        if (!r.ok) { denyTap(); window.CB_UI.toast(r.reason || 'Cannot improve'); }
         else {
           window.CB_UI.toast(
             'Bounty mastery ' + r.mastery + '/10 · chest ' + (r.chestChance * 100).toFixed(2) + '%',
@@ -632,6 +643,7 @@ case 'buy-sigil': {
       }
       case 'target-up': {
         if (window.CB_STATE.isBossFightActive && window.CB_STATE.isBossFightActive(state)) {
+          denyTap();
           window.CB_UI.toast('Leave the boss fight first');
           break;
         }
@@ -644,6 +656,7 @@ case 'buy-sigil': {
       }
       case 'target-down': {
         if (window.CB_STATE.isBossFightActive && window.CB_STATE.isBossFightActive(state)) {
+          denyTap();
           window.CB_UI.toast('Leave the boss fight first');
           break;
         }
@@ -656,6 +669,7 @@ case 'buy-sigil': {
       }
       case 'target-auto': {
         if (window.CB_STATE.isBossFightActive && window.CB_STATE.isBossFightActive(state)) {
+          denyTap();
           window.CB_UI.toast('Leave the boss fight first');
           break;
         }

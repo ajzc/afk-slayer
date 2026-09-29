@@ -11,22 +11,22 @@
 Alex creates an OAuth Web client in Google Cloud Console with Authorized JavaScript origin:
 `https://afk-slayer.ajchapman20.workers.dev`
 
-Then from the `deploy/` folder of this repo (any machine with a Cloudflare API token):
+Then from `/workspace/afk-slayer-cf` (or any machine with the token + this repo):
 
 ```bash
 # ONE edit — set the Client ID, then deploy:
 # In wrangler.jsonc vars.GOOGLE_CLIENT_ID, paste the Client ID, then:
-cd deploy && \
-  export CLOUDFLARE_API_TOKEN="<your Cloudflare API token — never commit it>" && \
+cd /workspace/afk-slayer-cf && \
+  export CLOUDFLARE_API_TOKEN="$(python3 -c "import json; print(json.load(open('/home/box/agent-data/box-secrets.json'))['card']['CLOUDFLARE_API_TOKEN'])")" && \
   ./node_modules/.bin/wrangler deploy && unset CLOUDFLARE_API_TOKEN
 ```
 
 Or single-line set via sed (replace CLIENT_ID):
 
 ```bash
-cd deploy && \
+cd /workspace/afk-slayer-cf && \
   sed -i 's/"GOOGLE_CLIENT_ID": ""/"GOOGLE_CLIENT_ID": "CLIENT_ID.apps.googleusercontent.com"/' wrangler.jsonc && \
-  export CLOUDFLARE_API_TOKEN="<your Cloudflare API token — never commit it>" && \
+  export CLOUDFLARE_API_TOKEN="$(python3 -c "import json; print(json.load(open('/home/box/agent-data/box-secrets.json'))['card']['CLOUDFLARE_API_TOKEN'])")" && \
   ./node_modules/.bin/wrangler deploy && unset CLOUDFLARE_API_TOKEN
 ```
 

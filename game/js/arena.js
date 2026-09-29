@@ -98,11 +98,26 @@
 
   function aimAssistDeg(contract) {
     const mod = Number(combatOf(contract).aimAssistMod) || 0;
-    return Math.max(4, BOLT_AIM_ASSIST_DEG + mod);
+    const solo = activeMobCount === 1 && wave.length === 1 && !(wave[0] && wave[0].isBoss);
+    return Math.max(4, BOLT_AIM_ASSIST_DEG + mod + (solo ? SOLO_AIM_ASSIST_BONUS : 0));
   }
 
   let shellBuilt = false;
   let holding = false;
+  // feel2: monsters on screen (design/monster-count.md)
+  let activeMobCount = 0;      // slots live this task (never drops mid-task)
+  let activeMobKey = '';       // task key the count belongs to
+  let lastKnownMobCount = null; // null until first build after load → no toast on load
+  let lastMobParts = null;
+  let waveCarry = null;        // same-task rebuild (e.g. a hire) keeps living monsters' HP/positions
+  let growCheckAt = 0;
+  const TAP_SNAP_PCT = 14;       // xp1: tap within this arena-% radius of a monster = aim at it
+  let arenaKeyFocus = false;     // xp1 (retest d): W/S/arrows only after the arena was last pressed
+  let soloSnap = null;         // { mobId, px, py } held aim follows the solo respawn until the finger moves
+  let lastPtrPct = null;
+  const SOLO_RESPAWN_MS = 150;
+  const SOLO_WALKIN_S = 0.6;
+  const SOLO_AIM_ASSIST_BONUS = 0; // +2 if solo SL1 kills/min drops >10% (spec §4) — see feel2 report
   let aimX = 50; // pointer aim % — bolt fires from player toward this
   let aimY = 35;
   let lockedMobId = null; // optional focus (tap); bolts aim by direction, not lock
@@ -158,6 +173,9 @@
   let boltHintShots = 0;
   let boltHintHoldMs = 0;
   let boltHintFading = false;
+  let huntSheetOpen = false;
+  const BOSS_MOMENT_MS = 1100; // feel1: boss death beat before the next Level loads
+  let bossMomentUntil = 0; // feel1: Hunters · Food · Bosses panel state across rebuilds
 
   const GEAR_ARMOR = [
     { tier: 0, weapon: 'Unarmed', armor: 'Rags', emoji: '🥋' },
@@ -208,7 +226,16 @@
     if (shellBuilt && dirtyKey === key && panel.querySelector('.arena')) {
       return true;
     }
+    // feel1: keep the old arena on screen during the boss death beat
+    if (performance.now() < bossMomentUntil && panel.querySelector('.arena')) return true;
 
+    // feel2: a rebuild inside the same task (hire, etc.) keeps the monsters where they were
+    const taskKey = (contract?.id || 'none') + '|' + bossKey;
+    waveCarry = (activeMobKey === taskKey && bossKey === 'noboss' && wave.length)
+      ? wave.map(m => (m && m.hp > 0 && m.el && !m.el.classList.contains('dying'))
+        ? { hp: m.hp, maxHp: m.maxHp, baseX: m.baseX, baseY: m.baseY, liveX: m.liveX, liveY: m.liveY, slotIndex: m.slotIndex, state: m.state, enterFrom: m.enterFrom, enterStartX: m.enterStartX, enterT: m.enterT, enterDur: m.enterDur }
+        : null)
+      : null;
     dirtyKey = key;
     shellBuilt = true;
     hunterTimers = {};
@@ -291,15 +318,35 @@
   /* Left inset keeps mobs clear of PERM/BOOST tubes (~10%+ of arena width) */
   const SPAWN_SLOTS = [
     { x: 32, y: 20 }, { x: 46, y: 18 }, { x: 60, y: 20 }, { x: 76, y: 19 },
-    { x: 34, y: 36 }, { x: 50, y: 32 }, { x: 66, y: 36 }, { x: 80, y: 34 },
+    // feel1: was {x:80,y:34} — sat under the target switcher (x≥80.5%, y 33–56%)
+    { x: 34, y: 36 }, { x: 50, y: 32 }, { x: 66, y: 36 }, { x: 72, y: 46 },
     { x: 40, y: 50 }, { x: 58, y: 52 },
   ];
+
+  /** feel1: arena-% box mobs may not park/wander into (switcher is right:8px, top≈46%). */
+  const SWITCHER_LANE = { x0: 73, y0: 28, y1: 62 };
 
   function slotPos(i) {
     return SPAWN_SLOTS[i % SPAWN_SLOTS.length];
   }
 
+  /** feel2: park slot hidden under an open overlay (intro panel / switcher)? */
+  function slotBlocked(i) {
+    const sl = SPAWN_SLOTS[i];
+    if (!sl) return false;
+    wanderBlocksAt = 0;
+    refreshWanderBlocks(performance.now());
+    return wanderBlocks.some(bl => sl.x > bl.x0 && sl.x < bl.x1 && sl.y > bl.y0 && sl.y < bl.y1);
+  }
+  function unblockedFirst(list) {
+    const ok = list.filter(i => !slotBlocked(i));
+    return ok.length ? ok.concat(list.filter(i => ok.indexOf(i) < 0)) : list;
+  }
+
   function pickDistinctSlotIndices(n, preferClump) {
+    return unblockedFirst(pickDistinctSlotIndicesRaw(SPAWN_SLOTS.length, preferClump)).slice(0, Math.min(n, SPAWN_SLOTS.length));
+  }
+  function pickDistinctSlotIndicesRaw(n, preferClump) {
     const idx = SPAWN_SLOTS.map((_, i) => i);
     if (preferClump) {
       // Prefer central mid-row slots (indices 4–7) so pierce chains feel good
@@ -332,6 +379,7 @@
       if (!occupied.has(i)) free.push(i);
     }
     let pool = free.length ? free : SPAWN_SLOTS.map((_, i) => i);
+    { const clear = pool.filter(i => !slotBlocked(i)); if (clear.length) pool = clear; } // feel2
     if (preferClump && pool.length > 1) {
       pool = pool.slice().sort((a, b) => {
         const score = (i) => {
@@ -524,8 +572,8 @@
         </div>
       </div>
 
-      <div class="hunt-sheet" id="hunt-sheet">
-        <button type="button" class="hunt-sheet-toggle" id="hunt-sheet-toggle" aria-expanded="false">
+      <div class="hunt-sheet${huntSheetOpen ? ' open' : ''}" id="hunt-sheet">
+        <button type="button" class="hunt-sheet-toggle" id="hunt-sheet-toggle" aria-expanded="${huntSheetOpen ? 'true' : 'false'}">
           <span>Hunters · Food · Bosses</span>
           <span class="sheet-chev" aria-hidden="true">▾</span>
         </button>
@@ -578,7 +626,9 @@
       sheetToggle._wired = true;
       sheetToggle.addEventListener('click', () => {
         const open = sheet.classList.toggle('open');
+        huntSheetOpen = open; // feel1: survives arena rebuilds (target switch, boss, new task)
         sheetToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) revealHuntSheet(sheet);
       });
     }
     els.droneLayer = document.getElementById('drone-layer');
@@ -669,71 +719,174 @@
     const hp = getMonsterVisualHp(boss || contract);
     const spawnMult = (combat.spawnMult != null && combat.spawnMult > 0) ? Number(combat.spawnMult) : 1;
     const bossMode = !!boss;
+    // feel2: only the first mobCountFor(state) slots are live; Tier Tests stay at 1
+    const taskKey = (contract ? contract.id : 'none') + '|' + (bossMode && boss ? 'boss:' + boss.id : 'noboss');
+    let n = 1;
+    if (!bossMode) {
+      const want = desiredMobCount(st0);
+      n = (taskKey === activeMobKey) ? Math.max(activeMobCount, want) : want;
+      n = Math.max(1, Math.min(WAVE_SIZE, slots.length, n));
+      announceMobGrowth(n, st0);
+      activeMobCount = n;
+      activeMobKey = taskKey;
+    }
+    const carry = (!bossMode && waveCarry) ? waveCarry : null;
+    waveCarry = null;
     slots.forEach((el, i) => {
-      if (bossMode && i > 0) {
+      if (i >= n) {
         el.style.display = 'none';
         el.classList.add('hidden');
         return;
       }
-      el.style.display = '';
-      el.classList.remove('hidden');
       const si = parkIdx[i] != null ? parkIdx[i] : (i % SPAWN_SLOTS.length);
-      const slot = SPAWN_SLOTS[si];
-      const body = el.querySelector('.mob-body');
-      if (body) body.innerHTML = mobFigHtml(vis);
-      el.dataset.visual = vis;
-      if (bossMode) el.classList.add('is-boss');
-      else el.classList.remove('is-boss');
-      const fill = el.querySelector('.mob-hp-fill');
-      if (fill) fill.style.width = '100%';
-      el.classList.remove('dying', 'focus', 'hit', 'telegraph', 'attacking', 'spawn', 'alive', 'on-target');
-      el.style.setProperty('--wx', '0px');
-      el.style.setProperty('--jig', '0px');
-      el.style.removeProperty('--track');
-      const baseEnter = 2.0 + Math.random() * 1.0;
-      const mob = {
-        id: i,
-        slotIndex: si,
-        hp: hp,
-        maxHp: hp,
-        el,
-        emoji: bossMode && boss ? boss.emoji : emoji,
-        visual: vis,
-        isBoss: bossMode,
-        bossPreyId: bossMode && boss ? boss.id : null,
-        baseX: slot.x,
-        baseY: slot.y,
-        liveX: slot.x,
-        liveY: slot.y,
-        wanderPhase: Math.random() * 12,
-        telegraphUntil: 0,
-        state: 'entering',
-        enterFrom: (i % 2 === 0) ? 'left' : 'right',
-        enterT: 0,
-        enterDur: Math.max(0.55, baseEnter / spawnMult),
-        spawnAt: performance.now(),
-      };
-      // Start off-screen
-      const startX = mob.enterFrom === 'left' ? -8 : 108;
-      mob.liveX = startX;
-      el.style.left = startX + '%';
-      el.style.top = slot.y + '%';
-      el.classList.add('entering');
-      el.classList.remove('alive');
+      const mob = makeMob(el, i, si, { vis, emoji, hp, boss: bossMode ? boss : null, spawnMult });
+      const c = carry && carry[i];
+      if (c) {
+        // Same task, rebuilt shell: keep HP + place, no re-walk
+        Object.assign(mob, { hp: c.hp, maxHp: c.maxHp, baseX: c.baseX, baseY: c.baseY, liveX: c.liveX, liveY: c.liveY, slotIndex: c.slotIndex });
+        const fill = el.querySelector('.mob-hp-fill');
+        if (fill) fill.style.width = Math.max(0, Math.min(100, (c.hp / Math.max(1, c.maxHp)) * 100)) + '%';
+        if (c.state === 'entering') {
+          Object.assign(mob, { enterFrom: c.enterFrom, enterStartX: c.enterStartX, enterT: c.enterT, enterDur: c.enterDur });
+          syncMobEl(mob);
+        } else {
+          finishWalkIn(mob);
+          mob.liveX = c.liveX; mob.liveY = c.liveY;
+          syncMobEl(mob);
+        }
+      }
       wave.push(mob);
     });
     setFocus(0);
   }
 
-  function beginWalkIn(mob) {
+  /** One monster slot → wave entry, starting off-screen and walking in. */
+  function makeMob(el, i, si, o) {
+    const slot = SPAWN_SLOTS[si];
+    el.style.display = '';
+    el.classList.remove('hidden');
+    const body = el.querySelector('.mob-body');
+    if (body) body.innerHTML = mobFigHtml(o.vis);
+    el.dataset.visual = o.vis;
+    el.classList.toggle('is-boss', !!o.boss);
+    const fill = el.querySelector('.mob-hp-fill');
+    if (fill) fill.style.width = '100%';
+    el.classList.remove('dying', 'focus', 'hit', 'hit-flash', 'telegraph', 'attacking', 'spawn', 'alive', 'on-target', 'wandering');
+    el.style.setProperty('--wx', '0px');
+    el.style.setProperty('--jig', '0px');
+    el.style.removeProperty('--track');
+    const baseEnter = 2.0 + Math.random() * 1.0;
+    const mob = {
+      id: i,
+      slotIndex: si,
+      hp: o.hp,
+      maxHp: o.hp,
+      el,
+      emoji: o.boss ? o.boss.emoji : o.emoji,
+      visual: o.vis,
+      isBoss: !!o.boss,
+      bossPreyId: o.boss ? o.boss.id : null,
+      baseX: slot.x,
+      baseY: slot.y,
+      liveX: slot.x,
+      liveY: slot.y,
+      wanderPhase: Math.random() * 12,
+      telegraphUntil: 0,
+      state: 'entering',
+      enterFrom: (i % 2 === 0) ? 'left' : 'right',
+      enterStartX: null,
+      enterT: 0,
+      enterDur: Math.max(0.55, baseEnter / (o.spawnMult || 1)),
+      spawnAt: performance.now(),
+      wander: null,
+      vx: 0,
+      vy: 0,
+    };
+    const startX = mob.enterFrom === 'left' ? -8 : 108;
+    mob.liveX = startX;
+    el.style.left = startX + '%';
+    el.style.top = slot.y + '%';
+    el.classList.add('entering');
+    el.classList.remove('alive');
+    return mob;
+  }
+
+  function desiredMobCount(state) {
+    if (!state || !window.CB_STATE || !window.CB_STATE.mobCountFor) return WAVE_SIZE;
+    return Math.max(1, Math.min(WAVE_SIZE, window.CB_STATE.mobCountFor(state)));
+  }
+
+  /** Toast when the count goes up (§5). Silent on load. */
+  function announceMobGrowth(n, state) {
+    const parts = (state && window.CB_STATE && window.CB_STATE.mobCountParts) ? window.CB_STATE.mobCountParts(state) : null;
+    const prevParts = lastMobParts;
+    const prev = lastKnownMobCount;
+    lastKnownMobCount = Math.max(prev || 0, n);
+    lastMobParts = parts;
+    if (prev == null || n <= prev || !parts) return;
+    let msg = 'More to hunt: your bolts can split now.';
+    const newHelper = parts.helpers.find(h => !(prevParts && prevParts.helpers.indexOf(h) >= 0));
+    if (newHelper) {
+      const D = window.CB_DATA;
+      const h = D && D.hunters && D.hunters.find(x => x.id === newHelper);
+      const role = { warrior: 'Warrior', archer: 'Archer', berserker: 'Berserker', mage: 'Mage' }[h && h.nameKey] || (h && h.name) || 'helper';
+      msg = 'More to hunt: your ' + role + ' needs a target.';
+    }
+    if (window.CB_UI && window.CB_UI.toast) {
+      setTimeout(() => { try { window.CB_UI.toast(msg, { ms: 2600 }); } catch (e) { /* soft */ } }, 250);
+    }
+  }
+
+  /** Re-check on purchase: a new slot walks in right away (never removes one mid-task). */
+  function maybeGrowWave(state, now) {
+    if (now < growCheckAt) return;
+    growCheckAt = now + 250;
+    if (!state || !els.waveColumn || !wave.length) return;
+    if (wave.some(m => m && m.isBoss)) return;
+    if (performance.now() < bossMomentUntil) return;
+    const contract = currentContract();
+    const taskKey = (contract ? contract.id : 'none') + '|noboss';
+    if (taskKey !== activeMobKey) return;
+    const want = desiredMobCount(state);
+    if (want <= wave.length) return;
+    const slots = els.waveColumn.querySelectorAll('.mob');
+    const vis = contract ? mobVisualKey(contract) : 'bristle_cub';
+    const hp = getMonsterVisualHp(contract);
+    const combat = combatOf(contract);
+    const spawnMult = (combat.spawnMult != null && combat.spawnMult > 0) ? Number(combat.spawnMult) : 1;
+    for (let i = wave.length; i < Math.min(want, slots.length); i++) {
+      const si = pickFreeParkSlot(-1, !!combat.clump);
+      const mob = makeMob(slots[i], i, si, { vis, emoji: contract ? contract.emoji : '🪨', hp, boss: null, spawnMult });
+      mob.enterDur = 1.2; // walks in right away
+      wave.push(mob);
+    }
+    announceMobGrowth(wave.length, state);
+    activeMobCount = wave.length;
+  }
+
+  function beginWalkIn(mob, opts) {
     if (!mob || !mob.el) return;
+    opts = opts || {};
     mob.state = 'entering';
     mob.enterT = 0;
+    mob.wander = null;
+    mob.vx = 0;
+    mob.vy = 0;
     const spawnMult = (combatOf().spawnMult != null && combatOf().spawnMult > 0)
       ? Number(combatOf().spawnMult) : 1;
-    mob.enterDur = Math.max(0.55, (2.0 + Math.random() * 1.0) / spawnMult);
-    mob.enterFrom = Math.random() < 0.5 ? 'left' : 'right';
-    const startX = mob.enterFrom === 'left' ? -8 : 108;
+    let startX;
+    if (opts.solo) {
+      // feel2 solo stage: 0.6s walk-in from the nearer side edge, already on screen
+      mob.enterDur = SOLO_WALKIN_S;
+      mob.enterFrom = mob.baseX < 50 ? 'left' : 'right';
+      startX = mob.enterFrom === 'left' ? 6 : 94;
+      mob.enterStartX = startX;
+    } else {
+      mob.enterDur = Math.max(0.55, (2.0 + Math.random() * 1.0) / spawnMult);
+      mob.enterFrom = Math.random() < 0.5 ? 'left' : 'right';
+      startX = mob.enterFrom === 'left' ? -8 : 108;
+      mob.enterStartX = null;
+    }
     mob.liveX = startX;
     mob.liveY = mob.baseY;
     mob.el.classList.add('entering', 'walking-in');
@@ -747,6 +900,9 @@
   function finishWalkIn(mob) {
     if (!mob) return;
     mob.state = 'alive';
+    mob.vx = 0;
+    mob.vy = 0;
+    mob.wander = { walking: false, idleUntil: performance.now() + wanderIdleMs() };
     mob.liveX = mob.baseX;
     mob.liveY = mob.baseY;
     if (mob.el) {
@@ -832,6 +988,12 @@
   function storePointerPct(e) {
     const p = pointerArenaPct(e);
     if (!p) return null;
+    lastPtrPct = p;
+    if (soloSnap && holding) {
+      const moved = Math.hypot(p.x - soloSnap.px, p.y - soloSnap.py);
+      if (moved < 7) return p; // finger still where the last kill was → keep aiming at the new monster
+      soloSnap = null;
+    }
     aimX = p.x;
     aimY = p.y;
     return p;
@@ -854,6 +1016,32 @@
     });
     if (maxDist != null && bestD > maxDist) return null;
     return best;
+  }
+
+  /** xp1 (retest b): the opened sheet slides into view (it opens below the fold on phones). */
+  function revealHuntSheet(sheet) {
+    requestAnimationFrame(() => {
+      const body = sheet.querySelector('.hunt-sheet-body') || sheet;
+      const nav = document.querySelector('nav.nav, .tab-bar, .bottom-nav');
+      const limit = nav ? nav.getBoundingClientRect().top : window.innerHeight;
+      const r = body.getBoundingClientRect();
+      const overflow = r.bottom - limit + 8;
+      if (overflow <= 0) return;
+      const st = getState ? getState() : null;
+      const smooth = !(st && st.settings && st.settings.reduceMotion);
+      // scroll the nearest scrolling ancestor (the page on desktop, .main on phones)
+      let sc = sheet.parentElement;
+      while (sc && sc !== document.body) {
+        const cs = getComputedStyle(sc);
+        if (/(auto|scroll)/.test(cs.overflowY) && sc.scrollHeight > sc.clientHeight + 1) break;
+        sc = sc.parentElement;
+      }
+      const toggle = sheet.querySelector('.hunt-sheet-toggle');
+      const topRoom = toggle ? toggle.getBoundingClientRect().top - 60 : overflow;
+      const by = Math.max(0, Math.min(overflow, topRoom));
+      if (sc && sc !== document.body) sc.scrollBy({ top: by, behavior: smooth ? 'smooth' : 'auto' });
+      else window.scrollBy({ top: by, behavior: smooth ? 'smooth' : 'auto' });
+    });
   }
 
   function wireHold(panel) {
@@ -887,12 +1075,25 @@
     const start = (e) => {
       if (e.type === 'mousedown' && e.button !== 0) return;
       if (e.type === 'pointerdown' && e.button != null && e.button !== 0) return;
-      // Ignore if clicking a chest tube or target switcher
-      if (e.target && e.target.closest && e.target.closest('.chest-tube, .chest-rails, .boost-pill, .target-switcher, .ts-btn')) return;
+      // Ignore if clicking a chest tube or a target-switcher button (the name chip between ▲/▼ is part of the hold area)
+      if (e.target && e.target.closest && e.target.closest('.chest-tube, .chest-rails, .boost-pill, .ts-btn, .hunt-sheet, .task-dock button')) return;
+      if (e.target && e.target.closest && e.target.closest('.target-switcher') && !e.target.closest('.ts-chip')) return;
       e.preventDefault();
       const p = storePointerPct(e);
-      const tapped = pickMobNearPointer(p, 14);
-      if (tapped) setFocus(tapped.id);
+      pressFeedback(p);
+      const tapped = pickMobNearPointer(p, TAP_SNAP_PCT);
+      if (tapped) {
+        setFocus(tapped.id);
+        // xp1 (retest c): a tap near a wandering monster aims at it (bigger tap target);
+        // the aim lets go as soon as the finger moves away (same rule as the solo respawn snap)
+        if (p) {
+          const mp = mobPosPct(tapped);
+          if (Math.hypot(mp.x - p.x, mp.y - p.y) > 1.5) {
+            aimX = mp.x; aimY = mp.y;
+            soloSnap = { mobId: tapped.id, px: p.x, py: p.y };
+          }
+        }
+      }
       ptrDownMeta = {
         t: performance.now(),
         x: p ? p.x : aimX,
@@ -930,6 +1131,20 @@
     zone.addEventListener('mousemove', move);
     zone.addEventListener('touchmove', move, { passive: false });
     zone.addEventListener('contextmenu', (e) => e.preventDefault());
+    // xp1 (#5 retest): a touch-hold that starts on the target-name chip fires like the arena.
+    // Touch/pointer moves stay bound to the element they started on, so the chip needs move too.
+    const chip = document.getElementById('ts-chip');
+    if (chip && !chip.dataset.holdWired) {
+      chip.dataset.holdWired = '1';
+      const chipStart = (e) => { start(e); e.stopPropagation(); };
+      chip.addEventListener('pointerdown', chipStart);
+      chip.addEventListener('mousedown', chipStart);
+      chip.addEventListener('touchstart', chipStart, { passive: false });
+      chip.addEventListener('pointermove', move);
+      chip.addEventListener('mousemove', move);
+      chip.addEventListener('touchmove', move, { passive: false });
+      chip.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
 
     if (!holdWired) {
       holdWired = true;
@@ -939,12 +1154,26 @@
       window.addEventListener('touchcancel', end);
       window.addEventListener('blur', () => { ptrDownMeta = null; setHolding(false); });
     }
+    if (!window._cbArenaFocusWired) {
+      window._cbArenaFocusWired = true;
+      document.addEventListener('pointerdown', (e) => {
+        const a = e.target && e.target.closest && e.target.closest('#arena');
+        arenaKeyFocus = !!(a && !(e.target.closest('.hunt-sheet, .intro-dock, button, input, select, textarea')));
+      }, true);
+      window.addEventListener('blur', () => { arenaKeyFocus = false; });
+    }
     if (!window._cbTargetKeys) {
       window._cbTargetKeys = true;
       window.addEventListener('keydown', (e) => {
         if (e.repeat) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
         const tag = (e.target && e.target.tagName) || '';
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return;
+        if (e.target && e.target.isContentEditable) return;
+        const ae = document.activeElement;
+        if (ae && ae !== document.body && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName || '')) return;
+        // xp1 (retest d): only when the arena has focus (last press was in the arena, Hunt tab showing)
+        if (!arenaKeyFocus || !document.body.classList.contains('tab-hunt')) return;
         const st = getState ? getState() : null;
         if (!st || !window.CB_STATE) return;
         if (window.CB_STATE.isBossFightActive && window.CB_STATE.isBossFightActive(st)) return;
@@ -1022,6 +1251,53 @@
     if (boltHintHoldMs >= 2000 || boltHintShots >= 4) beginBoltAimFade();
   }
 
+  let bufferedShotTimer = 0;
+  function cancelBufferedShot() {
+    if (bufferedShotTimer) clearTimeout(bufferedShotTimer);
+    bufferedShotTimer = 0;
+  }
+  function scheduleBufferedShot(waitMs) {
+    // Held-fire accumulator stays parked until the buffered shot lands, so the
+    // two paths can never double-fire inside one interval.
+    boltTickAcc = -1e9;
+    if (bufferedShotTimer) return; // one buffered shot max
+    bufferedShotTimer = setTimeout(() => {
+      bufferedShotTimer = 0;
+      const hunt = document.getElementById('screen-hunt');
+      if (!els.arena || !hunt || !hunt.classList.contains('active') || document.hidden) { boltTickAcc = 0; return; }
+      if (performance.now() - lastBoltAt < boltIntervalMs() - 2) { boltTickAcc = 0; return; }
+      try { fireBolt(currentContract()); } catch (e) { /* soft */ }
+      boltTickAcc = 0; // held fire continues on the normal 0.6s cadence from here
+    }, Math.max(0, Math.ceil(waitMs)));
+  }
+
+  /** feel1: every touch gets a same-frame response (ripple at the finger + staff glow). */
+  let lastPressFxAt = -1e9;
+  function pressFeedback(p) {
+    const now = performance.now();
+    if (now - lastPressFxAt < 60) return; // pointerdown + touchstart + mousedown of one touch
+    lastPressFxAt = now;
+    if (els.arena && p) {
+      const r = document.createElement('div');
+      r.className = 'touch-ripple';
+      r.style.left = p.x + '%';
+      r.style.top = p.y + '%';
+      els.arena.appendChild(r);
+      setTimeout(() => r.remove(), 320);
+    }
+    if (els.player) {
+      els.player.classList.remove('press-glow');
+      void els.player.offsetWidth;
+      els.player.classList.add('press-glow');
+      clearTimeout(pressFeedback._t);
+      pressFeedback._t = setTimeout(() => els.player && els.player.classList.remove('press-glow'), 180);
+      // Wind-up frame straight away so the hero visibly reacts even during the cooldown
+      if (window.CB_SPRITES && window.CB_SPRITES.playerAttack) {
+        try { window.CB_SPRITES.playerAttack(els.player, 0, true); } catch (e) { /* soft */ }
+      }
+    }
+  }
+
   function setHolding(v) {
     if (holding === v) return;
     holding = v;
@@ -1039,16 +1315,25 @@
       // First bolt NOW so hold-to-attack is obvious (playtest: no bolts / delayed feedback)
       boltTickAcc = 0;
       try {
-        const stNow = getState ? getState() : null;
-        const cNow = stNow && window.CB_STATE ? window.CB_STATE.getContract(stNow.currentContractId) : null;
         // Tick gate: re-pressing can't fire faster than one shot per interval
         const nowMs = performance.now();
-        if (nowMs - lastBoltAt >= boltIntervalMs()) fireBolt(cNow || null);
+        const interval = boltIntervalMs();
+        const since = nowMs - lastBoltAt;
+        if (since >= interval) {
+          cancelBufferedShot();
+          fireBolt(currentContract());
+          boltTickAcc = 0;
+        } else {
+          // feel1 input buffer: a press during the cooldown fires the moment the
+          // cooldown ends (not a full interval later). Same 0.6s gate → same DPS.
+          scheduleBufferedShot(interval - since);
+        }
       } catch (e) { /* soft */ }
-      boltTickAcc = 0;
     } else {
+      soloSnap = null;
       clearTrackUi();
-      boltTickAcc = 0;
+      // A tap released during the cooldown keeps its buffered shot.
+      if (!bufferedShotTimer) boltTickAcc = 0;
     }
     if (onHoldChange) onHoldChange(v);
   }
@@ -1097,7 +1382,7 @@
     let best = null;
     living.forEach((m) => {
       if (!m || m.hp <= 0 || !m.el || m.el.classList.contains('dying')) return;
-      const pos = mobPosPct(m);
+      const pos = (m.vx || m.vy) ? mobLeadPos(m, 0.25) : mobPosPct(m); // feel2: lead walkers slightly
       const vx = pos.x - base.o.x;
       const vy = pos.y - base.o.y;
       const dist = Math.sqrt(vx * vx + vy * vy);
@@ -1275,9 +1560,17 @@
   function playerBoltRecoil(dirX, dirY) {
     if (!els.player || reduceMotionOn()) return;
     const actor = els.player.querySelector('.cb-actor') || els.player;
-    actor.style.translate = (-(dirX || 0) * 2).toFixed(1) + 'px ' + (-(dirY || -1) * 2).toFixed(1) + 'px';
+    actor.style.translate = (-(dirX || 0) * 3).toFixed(1) + 'px ' + (-(dirY || -1) * 3).toFixed(1) + 'px';
     clearTimeout(playerBoltRecoil._t);
     playerBoltRecoil._t = setTimeout(() => { actor.style.translate = ''; }, 90);
+    // feel1: squash on every shot (individual `scale` so sprite flips/translate are untouched)
+    try {
+      if (actor._sq) actor._sq.cancel();
+      actor.style.transformOrigin = '50% 100%';
+      actor._sq = actor.animate(
+        [{ scale: '1 1' }, { scale: '1.1 0.9', offset: 0.3 }, { scale: '0.96 1.05', offset: 0.65 }, { scale: '1 1' }],
+        { duration: 150, easing: 'cubic-bezier(.2,.8,.3,1)' });
+    } catch (e) { /* soft — older browsers skip the squash */ }
   }
 
   function spawnBoltImpactAt(xPx, yPx, crit) {
@@ -1347,10 +1640,15 @@
     releaseNode(boltPool, w, flightMs + 20);
   }
 
-  function triggerCritShake(isBoss) {
+  function triggerCritShake(isBoss, ampOverride) {
     if (!els.arena || reduceMotionOn()) return;
-    const amp = isBoss ? 3 : 2;
-    const seq = [[amp, -amp * 0.5], [-amp, amp * 0.5], [amp * 0.5, 0], [0, 0]];
+    // feel1: the boss-death shake is never cut short by a same-frame crit/boss-hit shake
+    if (!ampOverride && performance.now() < (triggerCritShake._bigUntil || 0)) return;
+    if (ampOverride) triggerCritShake._bigUntil = performance.now() + 360;
+    const amp = ampOverride || (isBoss ? 3 : 2);
+    const seq = ampOverride
+      ? [[amp, -amp * 0.5], [-amp * 0.9, amp * 0.6], [amp * 0.6, -amp * 0.3], [-amp * 0.35, amp * 0.2], [amp * 0.15, 0], [0, 0]]
+      : [[amp, -amp * 0.5], [-amp, amp * 0.5], [amp * 0.5, 0], [0, 0]];
     clearTimeout(triggerCritShake._t);
     let i = 0;
     const step = () => {
@@ -1626,6 +1924,10 @@
         if (r.signatureMat && r.signatureMat.total > 0) {
           toastMsg += ' · ' + (r.signatureMat.emoji || '') + ' ' + r.signatureMat.name + ' ×' + r.signatureMat.total;
         }
+        if (r.firstClearXp > 0) {
+          const xpLab = (window.CB_DATA.nameOf && window.CB_DATA.nameOf('slayer_xp')) || 'Slayer XP';
+          toastMsg += ' · +' + F.num(r.firstClearXp, 0) + ' ' + xpLab + ' (first clear)';
+        }
       } else if (finC) {
         const r = finishRewardPreview(state, finC);
         toastMsg = 'Task complete! Claimed ' + (F.goldChipHtml ? F.goldChipHtml(r.gold) : (F.num(r.gold, 0) + ' gold')) + ' · ⭐ ' + F.num(r.points, 0) + ' Slayer points';
@@ -1807,6 +2109,9 @@
       }
       updateTargetSwitcher(st);
       return;
+    }
+    if (window.CB_AUDIO && window.CB_AUDIO.denied) {
+      try { window.CB_AUDIO.denied(); } catch (e) { /* soft */ } // feel1: locked/invalid switcher press
     }
     if (r && r.locked && r.need) {
       if (els.tsChip) {
@@ -2075,6 +2380,7 @@
 
   function update(state, gainsHint) {
     if (!ensureShell(state)) return;
+    if (performance.now() < bossMomentUntil) return; // boss death beat: freeze HUD swaps
 
     const S = window.CB_STATE;
     const F = window.CB_FMT;
@@ -2255,6 +2561,108 @@
     rafId = 0;
   }
 
+  /* —— feel2: random wander —— */
+  const WANDER_BOUNDS = { x0: 16, x1: 84, y0: 14, y1: 64 }; // clear of HUD tubes (left), task strip + player (bottom)
+  const WANDER_SPEED = 9; // % of arena per second at moveMult 1
+  const PLAYER_CLEAR_R = 26;
+  function wanderIdleMs() { return 400 + Math.random() * 1100; }
+  // Overlays that hide monsters (open intro-task panel, target switcher), in arena %, refreshed ~2×/s
+  let wanderBlocks = [];
+  let wanderBlocksAt = 0;
+  function refreshWanderBlocks(now) {
+    if (now < wanderBlocksAt || !els.arena) return;
+    wanderBlocksAt = now + 500;
+    const a = els.arena.getBoundingClientRect();
+    if (a.width <= 0 || a.height <= 0) return;
+    const out = [];
+    ['intro-dock', 'target-switcher'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el || el.hidden || el.classList.contains('hidden') || el.offsetParent === null) return;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return;
+      out.push({ x0: (r.left - a.left) / a.width * 100 - 7, x1: (r.right - a.left) / a.width * 100 + 7, y0: (r.top - a.top) / a.height * 100 - 4, y1: (r.bottom - a.top) / a.height * 100 + 6 });
+    });
+    wanderBlocks = out;
+  }
+  function wanderSpotOk(x, y, self) {
+    if (x < WANDER_BOUNDS.x0 || x > WANDER_BOUNDS.x1 || y < WANDER_BOUNDS.y0 || y > WANDER_BOUNDS.y1) return false;
+    const o = playerOriginPct();
+    if (Math.hypot(x - o.x, y - o.y) < PLAYER_CLEAR_R) return false;
+    const swOn = !(els.targetSwitcher && els.targetSwitcher.classList.contains('hidden'));
+    if (swOn && x > SWITCHER_LANE.x0 - 3 && y > SWITCHER_LANE.y0 - 4 && y < SWITCHER_LANE.y1 + 4) return false;
+    for (const bl of wanderBlocks) {
+      if (x > bl.x0 && x < bl.x1 && y > bl.y0 && y < bl.y1) return false;
+    }
+    for (const m of wave) {
+      if (!m || m === self || m.hp <= 0) continue;
+      const tx = m.wander && m.wander.walking ? m.wander.toX : m.liveX;
+      const ty = m.wander && m.wander.walking ? m.wander.toY : m.liveY;
+      if (Math.hypot(x - tx, y - ty) < 12) return false;
+    }
+    return true;
+  }
+  function pickWanderTarget(m) {
+    const rm = reduceMotionOn();
+    const rMin = rm ? 4 : 8;
+    const rMax = rm ? 13 : 26;
+    for (let k = 0; k < 14; k++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = rMin + Math.random() * (rMax - rMin);
+      const x = m.liveX + Math.cos(a) * r;
+      const y = m.liveY + Math.sin(a) * r * 0.8;
+      if (wanderSpotOk(x, y, m)) return { x, y };
+    }
+    for (let k = 0; k < 12; k++) {
+      const x = WANDER_BOUNDS.x0 + Math.random() * (WANDER_BOUNDS.x1 - WANDER_BOUNDS.x0);
+      const y = WANDER_BOUNDS.y0 + Math.random() * (WANDER_BOUNDS.y1 - WANDER_BOUNDS.y0);
+      if (Math.hypot(x - m.liveX, y - m.liveY) <= (rm ? 20 : 40) && wanderSpotOk(x, y, m)) return { x, y };
+    }
+    // Fallback: drift back toward a park slot that is clear
+    const s0 = SPAWN_SLOTS[m.slotIndex != null ? m.slotIndex : 5];
+    return wanderSpotOk(s0.x, s0.y, m) ? { x: s0.x, y: s0.y } : null;
+  }
+  function wanderStep(m, combat, moveMult, now, dtSec) {
+    refreshWanderBlocks(now);
+    if (!m.wander) m.wander = { walking: false, idleUntil: now + wanderIdleMs() };
+    const w = m.wander;
+    if (!w.walking) {
+      m.vx = 0; m.vy = 0;
+      m.el.classList.remove('wandering');
+      if (now >= w.idleUntil) {
+        const tgt = pickWanderTarget(m);
+        if (!tgt) { w.idleUntil = now + wanderIdleMs(); return; }
+        const dist = Math.hypot(tgt.x - m.liveX, tgt.y - m.liveY);
+        const speed = WANDER_SPEED * moveMult * (combat.charger ? 1.3 : 1) * (reduceMotionOn() ? 0.5 : 1);
+        Object.assign(w, { walking: true, fromX: m.liveX, fromY: m.liveY, toX: tgt.x, toY: tgt.y, t: 0, dur: Math.max(0.7, Math.min(4, dist / Math.max(1, speed))) });
+        m.el.classList.add('wandering');
+        const right = tgt.x >= m.liveX;
+        m.el.classList.toggle('face-right', right);
+        m.el.classList.toggle('face-left', !right);
+      }
+      return;
+    }
+    w.t += dtSec;
+    const t = Math.min(1, w.t / w.dur);
+    const e = 0.5 - 0.5 * Math.cos(Math.PI * t); // ease in-out
+    const px = m.liveX, py = m.liveY;
+    m.liveX = w.fromX + (w.toX - w.fromX) * e;
+    m.liveY = w.fromY + (w.toY - w.fromY) * e;
+    m.baseX = m.liveX; m.baseY = m.liveY;
+    if (dtSec > 0) { m.vx = (m.liveX - px) / dtSec; m.vy = (m.liveY - py) / dtSec; }
+    if (t >= 1) {
+      w.walking = false;
+      w.idleUntil = now + wanderIdleMs();
+      m.vx = 0; m.vy = 0;
+      m.el.classList.remove('wandering');
+    }
+  }
+  /** Where a moving mob will be `sec` from now (bolts lead slightly so hits land on walkers). */
+  function mobLeadPos(m, sec) {
+    const p = mobPosPct(m);
+    const k = Math.max(0, Math.min(0.6, sec || 0));
+    return { x: p.x + (m.vx || 0) * k, y: p.y + (m.vy || 0) * k };
+  }
+
   function visualTick(now, dt) {
     const state = getState ? getState() : null;
     if (!state || !els.arena) return;
@@ -2266,6 +2674,7 @@
       ? window.CB_STATE.getContract(state.currentContractId)
       : null;
 
+    maybeGrowWave(state, performance.now()); // feel2: purchase can add a monster slot mid-task
     // Continuous bob / wander
     patrolPhase += 0.12;
     const dtSec = Math.min(0.05, (dt || VISUAL_MS) / 1000);
@@ -2279,9 +2688,11 @@
         const t = Math.min(1, m.enterT / Math.max(0.2, m.enterDur || 2.5));
         // Ease-out toward slot
         const ease = 1 - Math.pow(1 - t, 2.2);
-        const startX = m.enterFrom === 'left' ? -8 : 108;
+        const startX = m.enterStartX != null ? m.enterStartX : (m.enterFrom === 'left' ? -8 : 108);
+        const px = m.liveX, py = m.liveY;
         m.liveX = startX + (m.baseX - startX) * ease;
         m.liveY = m.baseY + Math.sin(ease * Math.PI) * 1.2;
+        if (dtSec > 0 && px != null) { m.vx = (m.liveX - px) / dtSec; m.vy = (m.liveY - py) / dtSec; }
         syncMobEl(m);
         m.el.classList.add('walking-in');
         // Face toward slot
@@ -2293,30 +2704,41 @@
 
       const combat = combatOf(contract);
       const moveMult = (combat.moveMult != null && combat.moveMult > 0) ? Number(combat.moveMult) : 1;
-      const wanderAmp = (combat.wanderAmp != null && combat.wanderAmp > 0) ? Number(combat.wanderAmp) : 1;
-      m.wanderPhase = (m.wanderPhase || 0) + dtSec * 0.85 * moveMult;
-      // Subtle % drift — amp/speed vary per monster identity
-      const driftX = (Math.sin(m.wanderPhase) * 2.2 + Math.sin(m.wanderPhase * 0.37 + i) * 0.8) * wanderAmp;
-      const driftY = (Math.cos(m.wanderPhase * 0.9 + i * 0.7) * 1.5) * wanderAmp;
-      m.liveX = m.baseX + driftX;
-      m.liveY = m.baseY + driftY;
+      if (m.isBoss) {
+        // Bosses / Tier Tests: stay near their spot with the old slow, small drift (reads as "planted")
+        const wanderAmp = (combat.wanderAmp != null && combat.wanderAmp > 0) ? Number(combat.wanderAmp) : 1;
+        m.wanderPhase = (m.wanderPhase || 0) + dtSec * 0.85 * moveMult * (reduceMotionOn() ? 0.5 : 1);
+        const k = wanderAmp * (reduceMotionOn() ? 0.5 : 1);
+        m.liveX = m.baseX + (Math.sin(m.wanderPhase) * 2.2 + Math.sin(m.wanderPhase * 0.37 + i) * 0.8) * k;
+        m.liveY = m.baseY + (Math.cos(m.wanderPhase * 0.9 + i * 0.7) * 1.5) * k;
+        m.vx = 0; m.vy = 0;
+        syncMobEl(m);
+        const faceRightB = (m.liveX || m.baseX || 50) < 50;
+        m.el.classList.toggle('face-left', !faceRightB);
+        m.el.classList.toggle('face-right', faceRightB);
+        return;
+      }
+      // feel2: random wander — pick a point in the hunt area, walk there (walk strip, eased), idle 0.4–1.5s, repeat
+      wanderStep(m, combat, moveMult, now, dtSec);
       syncMobEl(m);
-      const jig = Math.sin(patrolPhase * 1.4 + i * 2) * 1.2;
+      const jig = m.wander && m.wander.walking ? 0 : Math.sin(patrolPhase * 1.4 + i * 2) * 1.2;
       if (!m.el.classList.contains('hit')) {
         m.el.style.setProperty('--wx', '0px');
         m.el.style.setProperty('--jig', jig.toFixed(1) + 'px');
       }
-      // Ambient telegraph lean toward focus
-      if (now > (m.telegraphUntil || 0) && Math.random() < 0.008) {
+      // Ambient telegraph lean (idle only)
+      if (!(m.wander && m.wander.walking) && now > (m.telegraphUntil || 0) && Math.random() < 0.006) {
         m.telegraphUntil = now + 280;
         m.el.classList.add('telegraph');
         setTimeout(() => m.el && m.el.classList.remove('telegraph'), 280);
       }
-      // Face roughly toward arena center / player
-      const faceRight = (m.liveX || m.baseX || 50) < 50;
-      m.el.classList.toggle('face-left', !faceRight);
-      m.el.classList.toggle('face-right', faceRight);
     });
+
+    // feel2: held aim follows the solo respawn until the finger moves
+    if (soloSnap && holding) {
+      const sm = wave.find(x => x && x.id === soloSnap.mobId && x.hp > 0 && x.el && !x.el.classList.contains('dying'));
+      if (sm) { const sp = mobPosPct(sm); aimX = sp.x; aimY = sp.y; } else soloSnap = null;
+    }
 
     // Melee pathing every frame + attack timers
     // Tier Test / boss: helpers muted (weapon-only skill check — IOM drones-off-obelisk twin)
@@ -2367,7 +2789,9 @@
     });
 
     // Hold → paced directional bolts (aim = pointer direction from player)
-    if (holding) {
+    if (holding && now < bossMomentUntil) {
+      boltTickAcc = 0; // boss death beat: nothing left to shoot
+    } else if (holding) {
       boltTickAcc += dt;
       noteBoltAimHold(dt);
       const interval = boltIntervalMs();
@@ -2435,7 +2859,7 @@
         wave.forEach((m) => {
           if (!m.el) return;
           let st = 'idle';
-          if (m.el.classList.contains('walking-in') || m.state === 'entering') st = 'walk';
+          if (m.el.classList.contains('walking-in') || m.state === 'entering' || (m.wander && m.wander.walking)) st = 'walk';
           else if (m.el.classList.contains('attacking') || m.el.classList.contains('telegraph')) st = 'attack';
           window.CB_SPRITES.syncMobAnim(m.el, st);
         });
@@ -2930,7 +3354,9 @@
     }
   }
 
+  let debugCritChance = null; // feel1 verification hook (CB_ARENA_DEBUG.setCritChance)
   function critChanceNow() {
+    if (debugCritChance != null) return debugCritChance;
     const st = getState ? getState() : null;
     if (!st) return 0;
     if (!st.features || !st.features.crits) return 0;
@@ -3061,16 +3487,24 @@
     livingMobs().forEach((m) => {
       if (ex.has(m.id)) return;
       if (!m || m.hp <= 0 || !m.el || m.el.classList.contains('dying')) return;
-      const pos = mobPosPct(m);
-      const vx = pos.x - origin.x;
-      const vy = pos.y - origin.y;
-      const along = vx * dirX + vy * dirY;
-      if (along < 3 || along > BOLT_RANGE) return;
-      const latX = vx - dirX * along;
-      const latY = vy - dirY * along;
-      const lateral = Math.sqrt(latX * latX + latY * latY);
-      if (lateral > hitW) return;
-      hits.push({ mob: m, dist: along, pos });
+      // feel2: test the current spot and where a walking mob will be when the bolt arrives
+      const cur = mobPosPct(m);
+      const d0 = Math.hypot(cur.x - origin.x, cur.y - origin.y);
+      const lead = (m.vx || m.vy) ? mobLeadPos(m, Math.max(140, Math.min(520, 120 + d0 * 5)) / 1000) : cur;
+      let best = null;
+      [lead, cur].forEach((pos) => {
+        const vx = pos.x - origin.x;
+        const vy = pos.y - origin.y;
+        const along = vx * dirX + vy * dirY;
+        if (along < 3 || along > BOLT_RANGE) return;
+        const latX = vx - dirX * along;
+        const latY = vy - dirY * along;
+        const lateral = Math.sqrt(latX * latX + latY * latY);
+        if (lateral > hitW) return;
+        if (!best || lateral < best.lateral - 0.5) best = { along, lateral, pos };
+      });
+      if (!best) return;
+      hits.push({ mob: m, dist: best.along, pos: lead });
     });
     hits.sort((a, b) => a.dist - b.dist);
     return hits;
@@ -3105,20 +3539,20 @@
         const ar = els.arena.getBoundingClientRect();
         spawnBoltImpactAt(r.left + r.width / 2 - ar.left, r.top + r.height * 0.5 - ar.top, !!crit);
       } catch (e) { /* soft */ }
-      bodyEl.style.filter = 'brightness(2.4) saturate(0.2)';
+      // feel1: white flash now comes only from pulseMob (.hit-flash) — no second inline filter.
       if (!reduceMotionOn()) {
         const pos = mobPosPct(mob);
         const o = playerOriginPct();
         let kx = pos.x - o.x;
         let ky = pos.y - o.y;
         const kl = Math.sqrt(kx * kx + ky * ky) || 1;
-        bodyEl.style.translate = (kx / kl * 2.5).toFixed(1) + 'px ' + (ky / kl * 2.5).toFixed(1) + 'px';
+        const kb = crit ? 6 : 4.5; // feel1: 4–6px knockback (was 2.5px)
+        bodyEl.style.translate = (kx / kl * kb).toFixed(1) + 'px ' + (ky / kl * kb).toFixed(1) + 'px';
       }
       clearTimeout(bodyEl._hitT);
       bodyEl._hitT = setTimeout(() => {
-        bodyEl.style.filter = '';
         bodyEl.style.translate = '';
-      }, 70);
+      }, 80);
       applyVisualHitToMob(mob, contract, {
         soft: false,
         source: 'bolt',
@@ -3129,7 +3563,10 @@
       });
       // SFX respects mute / default-off prefs inside CB_AUDIO
       if (window.CB_AUDIO) {
-        try { window.CB_AUDIO.play('bolt_hit'); } catch (e) { /* soft */ }
+        try {
+          window.CB_AUDIO.play('bolt_hit');
+          if (crit) window.CB_AUDIO.play('crit_hit'); // feel1: layer on the same frame, never a replacement
+        } catch (e) { /* soft */ }
       }
       const st = getState ? getState() : null;
       const bossOn = !!(st && window.CB_STATE && window.CB_STATE.isBossFightActive && window.CB_STATE.isBossFightActive(st));
@@ -3164,6 +3601,7 @@
   let lastBoltAt = -1e9;
   function fireBolt(contract) {
     lastBoltAt = performance.now();
+    cancelBufferedShot();
     // iom7: shot = thrust frame of the attack strip (bolt spawns from the blade tip)
     if (window.CB_SPRITES && window.CB_SPRITES.playerAttack && els.player) {
       try { window.CB_SPRITES.playerAttack(els.player, 2); } catch (e) { /* soft */ }
@@ -3391,17 +3829,19 @@
 
   function pulseMob(mob, intensity) {
     if (!mob.el) return;
-    mob.el.classList.remove('hit');
-    void mob.el.offsetWidth;
-    mob.el.style.setProperty('--hit-scale', (1.12 * intensity).toFixed(2));
-    mob.el.classList.add('hit');
-    // Brief red flash on figure
-    const fig = mob.el.querySelector('.fig-mob');
-    if (fig) {
-      fig.classList.remove('flash');
-      void fig.offsetWidth;
-      fig.classList.add('flash');
-    }
+    // feel1: squash & stretch (not a uniform pop) + ONE white flash on real hits.
+    const k = Math.max(0.3, Math.min(1.4, intensity || 1));
+    const el = mob.el;
+    el.classList.remove('hit', 'hit-flash');
+    void el.offsetWidth;
+    el.style.setProperty('--sq-x', (1 + 0.18 * k).toFixed(3));
+    el.style.setProperty('--sq-y', (1 - 0.18 * k).toFixed(3));
+    el.style.setProperty('--st-x', (1 - 0.07 * k).toFixed(3));
+    el.style.setProperty('--st-y', (1 + 0.10 * k).toFixed(3));
+    el.classList.add('hit');
+    if (k >= 0.9) el.classList.add('hit-flash'); // cosmetic idle pulses don't flash
+    clearTimeout(el._hitT);
+    el._hitT = setTimeout(() => el.classList.remove('hit', 'hit-flash'), 170);
   }
 
   function killCoinAmount(contract) {
@@ -3413,84 +3853,135 @@
     return Math.max(1, Math.round((1 + avg * 0.3 * tier) * roll));
   }
 
-  function awardKillCoins(mob, contract) {
+  const COIN_FLIGHT_MS = 650; // feel1: was ~1600ms
+
+  function awardKillCoins(mob, contract, gained, xpInfo) {
     const state = getState ? getState() : null;
+    const F = window.CB_FMT;
     let coins = killCoinAmount(contract);
     if (state && window.CB_STATE && window.CB_STATE.earlyRewardMult) coins *= window.CB_STATE.earlyRewardMult(state);
-    // VFX only — real gold already credited via creditContractKills on death
+    // feel1: the coin carries the real gold of this kill (already credited to state);
+    // the HUD holds it back until the coin lands, then counts up + pops.
+    const realAmt = gained > 0 ? gained : 0;
+    const label = realAmt > 0 ? realAmt : coins;
     if (state) lastGold = state.gold;
-    const goldEl = document.getElementById('res-gold');
-    if (goldEl && state) {
-      if (window.CB_FMT && window.CB_FMT.applyGoldHud) window.CB_FMT.applyGoldHud(state.gold);
-      else goldEl.textContent = window.CB_FMT.num(state.gold);
-      goldEl.classList.remove('flash-gold');
-      void goldEl.offsetWidth;
-      goldEl.classList.add('flash-gold');
-    }
+    let delay = 0;
     if (mob && mob.el) {
       const now = performance.now();
       if (now > killCoinStaggerUntil) killCoinStaggerN = 0;
-      const delay = Math.min(killCoinStaggerN, 6) * 90;
+      delay = Math.min(killCoinStaggerN, 6) * 90;
       killCoinStaggerN++;
       killCoinStaggerUntil = now + 700;
+    }
+    const hold = (realAmt > 0 && F && F.holdGold)
+      ? F.holdGold(realAmt, performance.now() + delay + COIN_FLIGHT_MS + 450) // self-expires if the coin is lost
+      : null;
+    if (state && F && F.setGoldHud) F.setGoldHud(state.gold);
+    // xp1: Slayer XP bar (and any level-up toast) moves on the same beat as the gold
+    const UI = window.CB_UI;
+    const xpTok = (xpInfo && UI && UI.holdXpHud)
+      ? UI.holdXpHud(xpInfo.prev, performance.now() + delay + COIN_FLIGHT_MS + 450)
+      : null;
+    if (xpTok && state && UI.renderSlayerXpHud) UI.renderSlayerXpHud(state);
+    let landed = false;
+    if (xpTok) setTimeout(() => { if (!landed) land(); }, delay + COIN_FLIGHT_MS + 500); // coin lost → still land
+    const land = () => {
+      if (landed) return;
+      landed = true;
+      if (xpTok && UI.landXpHud) UI.landXpHud(xpTok, xpInfo.levels);
+      if (F && F.landGold) F.landGold(hold);
+      if (window.CB_AUDIO) {
+        try { window.CB_AUDIO.play('coin_land'); } catch (e) { /* soft */ }
+      }
+    };
+    if (mob && mob.el) {
       const el = mob.el;
       setTimeout(() => {
-        if (!el || !el.isConnected) return;
-        spawnCoinPopFloat(el, coins);
-        spawnLootFly(el, contract, coins);
+        if (!el || !el.isConnected) { land(); return; }
+        spawnCoinPopFloat(el, label);
+        spawnLootFly(el, contract, label, land);
       }, delay);
+    } else {
+      land();
     }
     return coins;
   }
 
   function killMob(mob, contract) {
     if (!mob.el) return;
+    const goldBeforeKill = (getState && getState()) ? (getState().gold || 0) : 0;
+    // xp1: HUD shows the pre-kill Slayer XP until this kill's coin lands
+    const st00 = getState ? getState() : null;
+    const xpBefore = st00 ? { sl: (window.CB_STATE.getSlayerLevel(st00)), xp: st00.slayerXp || 0 } : null;
+    const goldGained = () => { const st0 = getState ? getState() : null; return st0 ? Math.max(0, (st0.gold || 0) - goldBeforeKill) : 0; };
     if (!mob.isBoss && mob.spawnAt) {
       recordKillTimeMs(performance.now() - mob.spawnAt);
       const stAuto = getState ? getState() : null;
       if (stAuto) maybeRunTargetAuto(stAuto);
     }
+    const isBossKill = !!(mob.isBoss && mob.bossPreyId);
     mob.el.classList.add('dying');
+    if (isBossKill) mob.el.classList.add('boss-dying');
+    // feel1: boss_death SFX, big burst and the one big shake all start on the same frame
     if (window.CB_AUDIO) {
-      try { window.CB_AUDIO.play('mob_death'); } catch (e) { /* soft */ }
+      try { window.CB_AUDIO.play(isBossKill ? 'boss_death' : 'mob_death'); } catch (e) { /* soft */ }
     }
-    spawnKillBurst(mob.el);
+    spawnKillBurst(mob.el, isBossKill ? { big: true } : null);
+    if (isBossKill) triggerCritShake(true, 6); // skipped under reduce-motion
     // Boss fight kill → clear Level, relic, unlock next (no Task credit)
     try {
       const st = getState ? getState() : null;
-      if (st && mob.isBoss && mob.bossPreyId && window.CB_STATE) {
+      if (st && isBossKill && window.CB_STATE) {
+        // feel1: economy + save happen NOW; only the visual transition waits (~1.1s)
         const r = window.CB_STATE.finishMarkedPrey(st, mob.bossPreyId);
         if (r && r.ok) {
+          bossMomentUntil = performance.now() + BOSS_MOMENT_MS;
           // Exact Designer copy: "Level N cleared — Level N+1 unlocked"
-          let msg = (r.levelCleared || 'Level') + ' cleared';
-          if (r.unlockLevelName) msg += ' — ' + r.unlockLevelName + ' unlocked';
-          else msg += '!';
-          if (r.relic) msg += ' · ' + (r.relic.emoji || '') + ' ' + (r.relic.name || '');
-          if (window.CB_UI && window.CB_UI.toast) window.CB_UI.toast(msg, { ms: 4200 });
+          const title = (r.levelCleared || 'Level') + ' cleared';
+          let sub = r.unlockLevelName ? (r.unlockLevelName + ' unlocked') : '';
+          if (r.relic) sub += (sub ? ' · ' : '') + (r.relic.emoji || '') + ' ' + (r.relic.name || '');
+          // xp1: guaranteed +1 SL — banner sub-line suffix; level toast waits for the boss moment
+          if (r.slayerLevelGained > 0) {
+            const slLab = (window.CB_DATA.nameOf && window.CB_DATA.nameOf('slayer_level')) || 'Slayer level';
+            sub += (sub ? ' · ' : '') + slLab + ' ' + r.slayerLevel;
+            if (window.CB_UI && window.CB_UI.holdXpHud && xpBefore) {
+              const tok = window.CB_UI.holdXpHud(xpBefore, performance.now() + BOSS_MOMENT_MS + 400);
+              setTimeout(() => window.CB_UI.landXpHud(tok, [r.slayerLevel]), BOSS_MOMENT_MS);
+            }
+          }
+          setTimeout(() => showBossBanner(title, sub), 320); // boss_death (1.05s) carries the whole beat
           if (window.CB_INTRO) {
             try { window.CB_INTRO.note('boss-kill', mob.bossPreyId); } catch (e) { /* soft */ }
           }
-          // Leave boss mode; HP/wave reset on next shell
           if (window.CB_GAME && window.CB_GAME.persist) {
             try { window.CB_GAME.persist(); } catch (e3) { /* soft */ }
           }
-          markDirty();
-          if (window.CB_UI && window.CB_UI.renderAll && window.CB_GAME) {
-            try {
-              const tab = window.CB_GAME.getTab ? window.CB_GAME.getTab() : 'hunt';
-              window.CB_UI.renderAll(st, tab);
-            } catch (e2) { /* soft */ }
-          }
+          // Leave boss mode after the death moment; HP/wave reset on the next shell
+          clearTimeout(killMob._bossT);
+          killMob._bossT = setTimeout(() => {
+            bossMomentUntil = 0;
+            markDirty();
+            if (window.CB_UI && window.CB_UI.renderAll && window.CB_GAME) {
+              try {
+                const tab = window.CB_GAME.getTab ? window.CB_GAME.getTab() : 'hunt';
+                window.CB_UI.renderAll(getState ? getState() : st, tab);
+              } catch (e2) { /* soft */ }
+            }
+          }, BOSS_MOMENT_MS);
         }
-        awardKillCoins(mob, contract);
+        awardKillCoins(mob, contract, goldGained());
         return;
       }
     } catch (e) { /* soft */ }
     // Task bar: +1 kill toward quota (arena death is the source of truth on Hunt)
+    let killXpInfo = null;
     try {
       const st = getState ? getState() : null;
       if (st && contract && window.CB_STATE && typeof window.CB_STATE.creditContractKills === 'function') {
-        window.CB_STATE.creditContractKills(st, contract, 1); // full kill economy (gold/points/scraps)
+        const kg = window.CB_STATE.creditContractKills(st, contract, 1); // full kill economy (gold/points/scraps)
+        if (kg && xpBefore && (kg.slayerXp > 0 || (kg.slayerLevels && kg.slayerLevels.length))) {
+          killXpInfo = { prev: xpBefore, levels: kg.slayerLevels || [] };
+        }
         // Snap Task UI immediately (don't wait for the next soft tick)
         const S = window.CB_STATE;
         const F = window.CB_FMT;
@@ -3498,7 +3989,7 @@
         const kills = Math.min(Math.floor(st.contractProgress || 0), quota);
         const pct = Math.min(100, (kills / Math.max(1, quota)) * 100);
         if (els.hpBar) els.hpBar.style.width = pct + '%';
-        if (!syncIntroTaskDock(state, contract, kills, quota)) {
+        if (!syncIntroTaskDock(st, contract, kills, quota)) {
           if (els.hpLabel) els.hpLabel.textContent = `Task · ${kills} / ${quota} kills`;
         }
         if (els.spQuota) els.spQuota.textContent = kills + ' / ' + quota + ' kills';
@@ -3511,7 +4002,7 @@
         updateSlayerPanel(st, contract);
       }
     } catch (e) { /* soft */ }
-    awardKillCoins(mob, contract);
+    awardKillCoins(mob, contract, goldGained(), killXpInfo);
     sessionTaskKills++;
     // Rare signature-mat toast (flushed from creditContractKills)
     try {
@@ -3550,6 +4041,8 @@
     mob.slotIndex = si;
     mob.baseX = slot.x + (Math.random() - 0.5) * (clump ? 1.2 : 3);
     mob.baseY = slot.y + (Math.random() - 0.5) * (clump ? 1.0 : 2.5);
+    // feel2: solo stage → 150ms respawn, 0.6s edge walk-in, focus + held aim snap to it
+    const soloRespawn = !mob.isBoss && wave.length === 1;
     setTimeout(() => {
       const hp = getMonsterVisualHp(contract);
       mob.hp = hp;
@@ -3564,9 +4057,17 @@
         if (body) body.innerHTML = mobFigHtml(vis);
         const fill = mob.el.querySelector('.mob-hp-fill');
         if (fill) fill.style.width = '100%';
-        beginWalkIn(mob);
+        beginWalkIn(mob, { solo: soloRespawn });
+        if (soloRespawn) {
+          setFocus(mob.id);
+          if (holding) {
+            soloSnap = { mobId: mob.id, px: lastPtrPct ? lastPtrPct.x : aimX, py: lastPtrPct ? lastPtrPct.y : aimY };
+            const pos = mobPosPct(mob);
+            aimX = pos.x; aimY = pos.y;
+          }
+        }
       }
-    }, 220);
+    }, soloRespawn ? SOLO_RESPAWN_MS : 220);
   }
 
   function spawnProjectile(fromEl, toEl, fx, flightMs, angleOffsetDeg) {
@@ -3674,7 +4175,7 @@
     setTimeout(() => el.remove(), 1700);
   }
 
-  function spawnLootFly(fromEl, contract, forcedAmt) {
+  function spawnLootFly(fromEl, contract, forcedAmt, onLand) {
     if (!els.floatLayer || !els.arena) return;
     const avgGold = contract
       ? ((contract.goldMin + contract.goldMax) / 2)
@@ -3720,14 +4221,17 @@
       spawnLocalLoot(fromEl, '+' + window.CB_FMT.num(contract.pointsPerKill * eM, 0) + '⭐', 'pts');
     }
 
+    el.style.setProperty('--fly-ms', COIN_FLIGHT_MS + 'ms');
     setTimeout(() => {
       el.remove();
-      if (goldEl) {
+      // feel1: gold is added to the HUD exactly when the coin arrives (pop comes from setGoldHud)
+      if (typeof onLand === 'function') onLand();
+      else if (goldEl) {
         goldEl.classList.remove('flash-gold');
         void goldEl.offsetWidth;
         goldEl.classList.add('flash-gold');
       }
-    }, 1600);
+    }, COIN_FLIGHT_MS);
   }
 
   function spawnLocalLoot(fromEl, text, cls) {
@@ -3746,25 +4250,61 @@
     setTimeout(() => el.remove(), isCoin ? 1700 : 800);
   }
 
-  function spawnKillBurst(atEl) {
+  function spawnKillBurst(atEl, opts) {
     if (!els.particles || !els.arena) return;
+    const big = !!(opts && opts.big);
     const a = els.arena.getBoundingClientRect();
     const m = atEl.getBoundingClientRect();
     const cx = ((m.left + m.width / 2 - a.left) / a.width) * 100;
     const cy = ((m.top + m.height / 2 - a.top) / a.height) * 100;
-    for (let i = 0; i < 10; i++) {
+    if (big) {
+      // feel1: critical event → big bang (shockwave ring + 3x sparks), per the video
+      const ring = document.createElement('div');
+      ring.className = 'boss-shockwave';
+      ring.style.left = cx + '%';
+      ring.style.top = cy + '%';
+      els.particles.appendChild(ring);
+      setTimeout(() => ring.remove(), 760);
+    }
+    const n = big ? 30 : 10;
+    for (let i = 0; i < n; i++) {
       const s = document.createElement('div');
-      s.className = 'spark burst';
+      s.className = 'spark burst' + (big ? ' big' : '');
       s.style.left = cx + '%';
       s.style.top = cy + '%';
-      const ang = (Math.PI * 2 * i) / 10 + Math.random() * 0.4;
-      const dist = 28 + Math.random() * 36;
+      const ang = (Math.PI * 2 * i) / n + Math.random() * 0.4;
+      const dist = big ? (60 + Math.random() * 90) : (28 + Math.random() * 36);
       s.style.setProperty('--sx', Math.cos(ang) * dist + 'px');
       s.style.setProperty('--sy', Math.sin(ang) * dist + 'px');
-      s.style.background = i % 2 ? '#ff981f' : '#ffff00';
+      s.style.background = big ? (i % 3 === 0 ? '#ffffff' : (i % 2 ? '#ff981f' : '#ffff00')) : (i % 2 ? '#ff981f' : '#ffff00');
       els.particles.appendChild(s);
-      setTimeout(() => s.remove(), 480);
+      setTimeout(() => s.remove(), big ? 760 : 480);
     }
+  }
+
+  /** feel1: centered victory banner over the arena (survives the shell rebuild). */
+  function showBossBanner(title, sub) {
+    let b = document.getElementById('boss-banner');
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'boss-banner';
+      b.className = 'boss-banner';
+      b.setAttribute('role', 'status');
+      b.innerHTML = '<div class="bb-kicker">BOSS DEFEATED</div><div class="bb-title"></div><div class="bb-sub"></div>';
+      document.body.appendChild(b);
+    }
+    b.querySelector('.bb-title').textContent = title || 'Level cleared';
+    const subEl = b.querySelector('.bb-sub');
+    subEl.textContent = sub || '';
+    subEl.hidden = !sub;
+    const ar = els.arena ? els.arena.getBoundingClientRect() : null;
+    b.style.left = (ar ? ar.left + ar.width / 2 : window.innerWidth / 2) + 'px';
+    b.style.top = (ar ? ar.top + ar.height * 0.42 : window.innerHeight / 2) + 'px';
+    b.classList.remove('show');
+    void b.offsetWidth;
+    b.classList.add('show');
+    clearTimeout(showBossBanner._t);
+    showBossBanner._t = setTimeout(() => b.classList.remove('show'), 2600);
   }
 
   function spawnBoltImpactSpark(atEl) {
@@ -3785,6 +4325,11 @@
     const flash = (id, curr, prev, kind) => {
       const el = document.getElementById(id);
       if (!el) return curr;
+      if (id === 'res-gold' && window.CB_FMT.setGoldHud) {
+        // feel1: gold goes through the HUD controller (count-up + pop on coin land)
+        window.CB_FMT.setGoldHud(curr);
+        return curr;
+      }
       if (curr > prev + 0.01) {
         el.classList.remove('flash-gold', 'flash-green');
         void el.offsetWidth;
@@ -3828,9 +4373,18 @@
   }
 
   window.CB_ARENA_DEBUG = {
+    spawnSlots: () => SPAWN_SLOTS.map(sl => ({ x: sl.x, y: sl.y })),
+    switcherLane: () => Object.assign({}, SWITCHER_LANE),
     boltIntervalMs: () => boltIntervalMs(),
     legacyBoltIntervalMs: () => legacyBoltIntervalMs(),
     boltHpChipRaw: (raw) => boltHpChipRaw(raw),
+    // test hook (feel1 verification): scale the living boss's HP so the death moment can be probed quickly
+    setCritChance: (p) => { debugCritChance = (p == null ? null : Math.max(0, Math.min(1, +p))); return debugCritChance; },
+    scaleMobHp: (frac) => { let n = 0; wave.forEach(m => { if (m && !m.isBoss && m.hp > 0) { m.hp = Math.max(1, Math.round(m.hp * frac)); n++; } }); return n; },
+    mobCount: () => ({ active: wave.length, activeMobCount, want: getState ? desiredMobCount(getState()) : null, visible: wave.filter(m => m && m.el && m.el.style.display !== 'none').length }),
+    wanderInfo: () => wave.map(m => ({ id: m.id, x: +(+m.liveX).toFixed(1), y: +(+m.liveY).toFixed(1), walking: !!(m.wander && m.wander.walking), vx: +(m.vx || 0).toFixed(2), vy: +(m.vy || 0).toFixed(2), state: m.state })),
+    aim: () => ({ x: +aimX.toFixed(1), y: +aimY.toFixed(1), holding }),
+    scaleBossHp: (frac) => { const m = wave.find(x => x && x.isBoss && x.hp > 0); if (!m) return null; m.hp = Math.max(1, Math.round(m.hp * frac)); return m.hp; },
   };
   window.CB_ARENA = {
     get ACTIVE_MULT() { return getConfiguredActiveMult(); },

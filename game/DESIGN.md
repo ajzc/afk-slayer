@@ -182,3 +182,9 @@ See design/visual-gear-ladder.md. The visual is always what is equipped: visible
 
 ## Early kill cut (locked 2026-09-24)
 See design/early-quota-cut.md. Until Hire Warrior is owned, task kill quotas are x0.2 (floor 2) and per-kill gold and Slayer points are x5, so each task pays the same. That means 9 kills to SL4 instead of 44.
+
+## Monsters on screen (2026-09-28)
+See design/monster-count.md. On screen = 1 + hired helpers + 1 if any multi-hit bolt (pierce/bounce/multishot), capped at 3. Cannon does not count because it is single-target. Solo respawn is 150 ms plus a 0.6 s edge walk-in. Tier Tests stay at 1.
+
+## Slayer XP (live as xp1 2026-09-28; retune proposed Sep 28)
+See design/slayer-xp.md. Every task kill gives Slayer XP, round(10 x area.mult x contract.mult): 10-12 on L1, 17-20 on L2, 29-36 on L3. That's x5 in the early window and 50% for offline/idle kills, with at most 1 level per offline claim. A first clear gives one full task's worth of XP. A Tier Test win is a guaranteed +1 SL, and XP stops at 99% before a Tier Test's gateLevel (5/9/13) until it is won. The curve is 150 x 1.66^(L-1) to SL13, then x1.2 per level: 150 XP for SL2, 948,550 total for SL20, about 6.9 h in the sim. The HUD bar shows XP ("SL 4 · 120/690 XP"), and task progress stays on the task card. Migration keeps SL and starts XP at 0. **Retune Sep 28 (faster SL4):** toNext SL1-3 150/250/410 → 100/120/180 and Crawling Hand hpMult 0.70 → 0.40. In the sim that moves SL4 (Warrior) from 3.5 min to 69 s. SL2 lands at 18 s and SL3 at 46 s. Tier Test 1 is now the SL5 gate (3.8 min).

@@ -5,10 +5,11 @@ window.CB_DATA = {
 
   /* OSRS names = private playtest only. Set USE_OSRS_NAMES false before public release. */
   USE_OSRS_NAMES: true,
-  BUILD_ID: 'iom7',
+  BUILD_ID: 'xp1b',
   NAMES: {
     /* Systems & currencies */
     slayer_level: { osrs: 'Slayer level', standIn: 'Hunt Rank' },
+    slayer_xp: { osrs: 'Slayer XP', standIn: 'Hunt XP' },
     slayer_points: { osrs: 'Slayer points', standIn: 'Mark Chips' },
     slayer_reward_points: { osrs: 'Slayer reward points', standIn: 'Crest Marks' },
     prayer_points: { osrs: 'Prayer points', standIn: 'Vow Sparks' },
@@ -180,7 +181,7 @@ window.CB_DATA = {
       goldMin: 4, goldMax: 7, scrapChance: 0.28, rareChance: 0.02,
       mult: 1.0, foodPerKill: 0.35, tutorial: true,
       combat: {
-        hpMult: 0.70, moveMult: 1.40, spawnMult: 1.25, wanderAmp: 1.2,
+        hpMult: 0.40, moveMult: 1.40, spawnMult: 1.25, wanderAmp: 1.2, // xp1b retune: 105 → 60 HP
         aimAssistMod: 4, hitWidthMult: 1.1,
       },
       masteryPerks: [
@@ -1084,3 +1085,28 @@ window.CB_DATA = {
   ]
 
 };
+
+/* xp1 (design/slayer-xp.md §5.1): Slayer XP data. Per-kill XP = round(10 × area.mult × contract.mult),
+   stored per contract so it can be tuned per monster. First-clear chunk = killQuota × slayerXp. */
+(function () {
+  const D = window.CB_DATA;
+  D.SLAYER_XP = {
+    // xp1b retune (Sep 28, faster SL4): SL1-3 150/250/410 → 100/120/180
+    toNext: [100, 120, 180, 690, 1150, 1900, 3150, 5200, 8650, 14500, 24000, 39500, 65500, 79000, 94500, 115000, 135000, 165000, 195000],
+    maxLevel: 20,
+    capFrac: 0.99,
+    offlineMult: 0.5,
+    offlineMaxLevels: 1,
+  };
+  const XP = {
+    bristle_cub: [10, 80], thornpelt_bear: [11, 132], dire_thornpelt: [12, 288],
+    ashfang_pup: [17, 1360], ashfang_wolf: [19, 2280], dire_ashfang: [20, 3000],
+    silkling: [29, 4060], webfen_widow: [32, 5760], brood_matron: [36, 7920],
+  };
+  D.contracts.forEach((c) => {
+    const row = XP[c.id];
+    if (row) { c.slayerXp = row[0]; c.firstClearXp = row[1]; }
+  });
+  const GATE = { sewer_king: 5, mist_wraith: 9, crypt_lord: 13 };
+  D.markedPrey.forEach((p) => { if (GATE[p.id]) p.gateLevel = GATE[p.id]; });
+})();

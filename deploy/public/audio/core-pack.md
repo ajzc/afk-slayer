@@ -43,4 +43,4 @@ Also in bible (optional / UI): `tab_switch`, `intro_step_complete` (replace osci
 
 ## Out of scope
 
-Game JS/CSS wiring, area flavor beds, Moss/Ember SFX, VO, licensed music.
+Game JS/CSS wiring, area flavor beds, Moss/Ember SFX, VO, licensed music, Kat Chapman work.

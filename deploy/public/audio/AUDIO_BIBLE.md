@@ -100,7 +100,7 @@ Core pack stays **dry-leaning** (short decay, little reverb) so phone stays clea
 - Voiceover / narration
 - Licensed App Store music beds
 - Jagex / Obelisk rips or trademarked filenames
-- Systems code, sprites
+- Systems code, sprites, Kat Chapman RN work
 - Per-area beds before core pack locks (Undercroft scrap/wail/ember after)
 
 ## Version

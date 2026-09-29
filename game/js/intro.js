@@ -184,6 +184,25 @@
       },
     },
     {
+      id: 'hire_briar', // xp1b: SL4 now comes from XP (~69 s), so hire before the Tier Test
+      icon: '🧔',
+      title: 'Hire Warrior',
+      instr: 'Progress → Company: Hire Warrior.',
+      arrow: { sel: '[data-prog-strip="company"], [data-node="co_briar"]', tab: 'maps', strip: 'company' },
+      check: (s) => !!(s.hunters && s.hunters.briar && s.hunters.briar.unlocked)
+        || upLevel(s, 'hunter_briar') >= 1,
+      onEnter: (s) => ensureGold(s, 80),
+    },
+    {
+      id: 'watch_briar',
+      icon: '👀',
+      title: 'Watch Briar chase and swing',
+      instr: 'Survive on Hunt until Briar lands 3 melee hits.',
+      arrow: { sel: '.drone[data-hunter="briar"], #drone-layer', tab: 'hunt' },
+      check: (s, st) => (st.briarHits || 0) >= 3,
+      progress: (s, st) => Math.min(3, st.briarHits || 0) + ' / 3',
+    },
+    {
       id: 'defeat_elder',
       icon: '👑',
       title: 'Defeat Crawling Hand Champion',
@@ -217,25 +236,6 @@
       arrow: { sel: '[data-node="c_pierce"], [data-node="c_bounce"]', tab: 'maps', strip: 'combat' },
       check: (s) => upLevel(s, 'bolt_pierce') >= 1 || upLevel(s, 'bolt_bounce') >= 1,
       onEnter: (s) => ensureGold(s, 200),
-    },
-    {
-      id: 'hire_briar',
-      icon: '🧔',
-      title: 'Hire Warrior',
-      instr: 'Progress → Company: Hire Warrior.',
-      arrow: { sel: '[data-prog-strip="company"], [data-node="co_briar"]', tab: 'maps', strip: 'company' },
-      check: (s) => !!(s.hunters && s.hunters.briar && s.hunters.briar.unlocked)
-        || upLevel(s, 'hunter_briar') >= 1,
-      onEnter: (s) => ensureGold(s, 80),
-    },
-    {
-      id: 'watch_briar',
-      icon: '👀',
-      title: 'Watch Briar chase and swing',
-      instr: 'Survive on Hunt until Briar lands 3 melee hits.',
-      arrow: { sel: '.drone[data-hunter="briar"], #drone-layer', tab: 'hunt' },
-      check: (s, st) => (st.briarHits || 0) >= 3,
-      progress: (s, st) => Math.min(3, st.briarHits || 0) + ' / 3',
     },
     {
       id: 'claim_relic',
@@ -336,6 +336,8 @@
     if (isIntroDone(state)) return true;
     const intro = state.intro;
     if (intro && (intro.index | 0) >= TOTAL) return true;
+    // xp1b: SL4 now lands ~1 min in — an intro under way is never auto-skipped by the checks below
+    if (intro && (intro.index | 0) > 0) return false;
     // First Tier Test / boss beaten
     if (state.prey) {
       for (const id of Object.keys(state.prey)) {

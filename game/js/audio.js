@@ -1,7 +1,7 @@
 /** Style A core audio pack — lazy AudioContext, anti-spam, AFK bed. Fail soft if blocked. */
 (function () {
   const BASE = 'audio/';
-  const AUDIO_CACHE = '20260924sfxv3'; // v3 clean tonal SFX pack + v3 bed
+  const AUDIO_CACHE = '20260928feel1'; // feel1: + coin_land / gold_countup_tick / boss_death / crit_hit / ui_denied (Game Audio)
   const MAX_VOICES = 6;
   const BOLT_FIRE_GAP_MS = 45;
   const EMPTY_NUDGE_GAP_MS = 8000;
@@ -31,6 +31,14 @@
     empty_task_nudge: { path: 'ui/empty_task_nudge.ogg', gain: 0.25 },
     tab_switch: { path: 'ui/tab_switch.ogg', gain: 0.35 },
     intro_step_complete: { path: 'ui/intro_step_complete.ogg', gain: 0.55, reward: true }, // ducks bed (bible)
+    // feel1 cues (Game Audio, audio/sfx/README.md)
+    coin_land_a: { path: 'sfx/coin_land_a.ogg', gain: 0.4, pool: 'coin_land' },
+    coin_land_b: { path: 'sfx/coin_land_b.ogg', gain: 0.4, pool: 'coin_land' },
+    coin_land_c: { path: 'sfx/coin_land_c.ogg', gain: 0.4, pool: 'coin_land' },
+    gold_countup_tick: { path: 'sfx/gold_countup_tick.ogg', gain: 0.15 },
+    boss_death: { path: 'sfx/boss_death.ogg', gain: 1.0, duckDb: -8, duckMs: 1200 },
+    crit_hit: { path: 'sfx/crit_hit.ogg', gain: 0.5 },
+    ui_denied: { path: 'sfx/ui_denied.ogg', gain: 0.4 },
     afk_bed: { path: 'loops/afk_bed.ogg', gain: 0.3, loop: true },
   };
 
@@ -38,7 +46,13 @@
     bolt_fire: ['bolt_fire_a', 'bolt_fire_b', 'bolt_fire_c'],
     bolt_hit: ['bolt_hit_a', 'bolt_hit_b', 'bolt_hit_c'],
     mob_death: ['mob_death_a', 'mob_death_b'],
+    coin_land: ['coin_land_a', 'coin_land_b', 'coin_land_c'],
   };
+  const NO_JITTER_POOLS = { coin_land: true }; // variants are already pitched D6/F6/G6
+  const COIN_WINDOW_MS = 60;
+  const COIN_MAX_VOICES = 3;
+  const GOLD_TICK_GAP_MS = 80;
+  const UI_DENIED_GAP_MS = 250;
 
   // Priority: higher = keep when voice budget full. Fire is lowest (drop first).
   const PRIORITY = {
@@ -56,6 +70,11 @@
     empty_task_nudge: 2,
     tab_switch: 2,
     intro_step_complete: 4,
+    coin_land: 3,
+    gold_countup_tick: 1,
+    boss_death: 8,
+    crit_hit: 4,
+    ui_denied: 2,
   };
 
   let ctx = null;
@@ -71,11 +90,15 @@
   let buffers = {};
   let loading = {};
   let activeVoices = []; // { stop, priority, kind, startedAt }
-  let poolIdx = { bolt_fire: 0, bolt_hit: 0, mob_death: 0 };
+  let poolIdx = { bolt_fire: 0, bolt_hit: 0, mob_death: 0, coin_land: 0 };
   let lastBoltFireAt = 0;
   let lastQuillFireAt = 0;
   let lastBoltHitAt = 0;
   let lastEmptyNudgeAt = 0;
+  let lastCoinAt = -1e9;
+  let lastGoldTickAt = -1e9;
+  let lastDeniedAt = -1e9;
+  let limiter = null;
   let bedSource = null;
   let bedWanted = false;
   let duckTimer = 0;
@@ -99,7 +122,20 @@
       sfxGain.connect(masterGain);
       duckGain.connect(masterGain);
       bedGain.connect(duckGain);
-      masterGain.connect(ctx.destination);
+      // feel1: master limiter on the output bus (catches stacked crit+hit+coin+boss peaks)
+      try {
+        limiter = ctx.createDynamicsCompressor();
+        limiter.threshold.value = -6;
+        limiter.knee.value = 6;
+        limiter.ratio.value = 12;
+        limiter.attack.value = 0.003;
+        limiter.release.value = 0.15;
+        masterGain.connect(limiter);
+        limiter.connect(ctx.destination);
+      } catch (e2) {
+        limiter = null;
+        masterGain.connect(ctx.destination);
+      }
       return ctx;
     } catch (e) {
       return null;
@@ -201,17 +237,24 @@
     return true;
   }
 
-  function duckBed() {
+  function duckBed(db, ms) {
     if (!duckGain || !ctx) return;
+    db = typeof db === 'number' ? db : AFK_DUCK_DB;
+    ms = typeof ms === 'number' ? ms : AFK_DUCK_MS;
+    // A longer/deeper duck already running wins (boss −8 dB 1.2s isn't cut short by a chime)
+    const nowMs = performance.now();
+    if (nowMs < duckUntil && ms <= (duckUntil - nowMs) && db >= (duckBed._db || 0)) return;
     const now = ctx.currentTime;
-    const mult = Math.pow(10, AFK_DUCK_DB / 20);
+    const mult = Math.pow(10, db / 20);
     try {
       duckGain.gain.cancelScheduledValues(now);
       duckGain.gain.setValueAtTime(duckGain.gain.value, now);
       duckGain.gain.linearRampToValueAtTime(mult, now + 0.04);
-      duckGain.gain.linearRampToValueAtTime(1, now + AFK_DUCK_MS / 1000);
+      duckGain.gain.setValueAtTime(mult, now + Math.max(0.05, ms / 1000 - 0.25));
+      duckGain.gain.linearRampToValueAtTime(1, now + ms / 1000);
     } catch (e) { /* soft */ }
-    duckUntil = performance.now() + AFK_DUCK_MS;
+    duckUntil = nowMs + ms;
+    duckBed._db = db;
   }
 
   function play(cue, opts) {
@@ -242,6 +285,21 @@
       if (now - lastBoltHitAt < 12) return false;
       lastBoltHitAt = now;
     }
+    if (cue === 'coin_land') {
+      // feel1: several coins landing within ~60ms → play one, drop the rest; max 3 coin voices
+      if (now - lastCoinAt < COIN_WINDOW_MS) return false;
+      pruneVoices();
+      if (activeVoices.filter(function (v) { return v.kind === 'coin_land'; }).length >= COIN_MAX_VOICES) return false;
+      lastCoinAt = now;
+    }
+    if (cue === 'gold_countup_tick') {
+      if (now - lastGoldTickAt < GOLD_TICK_GAP_MS) return false;
+      lastGoldTickAt = now;
+    }
+    if (cue === 'ui_denied') {
+      if (now - lastDeniedAt < UI_DENIED_GAP_MS) return false;
+      lastDeniedAt = now;
+    }
 
     const id = resolveId(cue);
     if (!id) return false;
@@ -260,8 +318,12 @@
     try {
       const src = c.createBufferSource();
       src.buffer = buf;
-      if (POOLS[cue] && PITCH_JITTER > 0) {
-        try { src.playbackRate.value = 1 + (Math.random() - 0.5) * PITCH_JITTER; } catch (e) { /* soft */ }
+      {
+        const baseRate = (opts.rate != null ? opts.rate : meta.rate) || 1;
+        const jitter = (PITCH_JITTER > 0 && POOLS[cue] && !NO_JITTER_POOLS[cue]) ? (1 + (Math.random() - 0.5) * PITCH_JITTER) : 1;
+        if (baseRate !== 1 || jitter !== 1) {
+          try { src.playbackRate.value = baseRate * jitter; } catch (e) { /* soft */ }
+        }
       }
       const g = c.createGain();
       g.gain.value = (opts.gain != null ? opts.gain : meta.gain) || 0.5;
@@ -280,7 +342,8 @@
       src.onended = function () { voice.done = true; };
       activeVoices.push(voice);
       src.start(0);
-      if (meta.reward) duckBed();
+      if (meta.duckDb != null) duckBed(meta.duckDb, meta.duckMs);
+      else if (meta.reward) duckBed();
       cueLog.push({ cue: cue, id: id, t: Math.round(now) });
       if (cueLog.length > 200) cueLog.shift();
       return true;
@@ -406,6 +469,9 @@
     introStep,
     tabSwitch,
     duckBed,
+    /** Invalid / locked tap (250ms cooldown). */
+    denied: function () { return play('ui_denied'); },
+    hasLimiter: function () { return !!limiter; },
     cueLog: function () { return cueLog.slice(); },
     isUnlocked: function () { return unlocked; },
   };

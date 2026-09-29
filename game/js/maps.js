@@ -440,7 +440,7 @@
     const title = (D.nameOf && D.nameOf('smithing')) || 'Smithing';
     let html = `<div class="card compact-card"><p class="tiny muted">${title} — armor (resets on prestige; earned Slayer cape/helm are kept) and Tempered Edge (survives prestige). Unlocks at Slayer level 2.</p></div>`;
     if (sl < 2) {
-      html += `<div class="card"><p class="muted">Locked — reach Slayer level 2 (finish a Slayer task).</p></div>`;
+      html += `<div class="card"><p class="muted">Locked — reach Slayer level 2 (earn Slayer XP from kills).</p></div>`;
       return html;
     }
     html += renderArmorRows(state);
